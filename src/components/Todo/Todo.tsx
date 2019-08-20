@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React from 'react'
 import styled from 'styled-components'
 
 const TodoPane = styled.div`
@@ -17,22 +17,21 @@ interface Props {
   todoId: string
   text: string
   done: boolean
-  onChange(): void
+  onChange(e: any): any
+  onClick(e: any): any
 }
 
-const Todo: React.FC<Props> = ({ text, done, onChange }) => {
-  const handleClick = useCallback(e => e.stopPropagation(), [])
+export const Todo: React.FC<Props> = props => {
+  const { done, onClick, onChange, text } = props
   return (
     <TodoPane>
       <input
         type="checkbox"
         checked={done}
-        onClick={handleClick}
+        onClick={onClick}
         onChange={onChange}
       />
       {text}
     </TodoPane>
   )
 }
-
-export default Todo
