@@ -18,6 +18,7 @@
   "plugins": ["prettier", "react"],
   "rules": {
     "prettier/prettier": ["error"],
-    "@typescript-eslint/no-empty-interface": 1
+    "@typescript-eslint/no-empty-interface": 1,
+    "react/prop-types": 0
   }
 }

@@ -1,17 +1,21 @@
-import React, { useState } from 'react'
+import React, { useState, useCallback } from 'react'
+import Todo from './Todo'
 
 const dummyTodos = {
   1: {
     id: 1,
     text: 'this is todo',
+    done: true,
   },
   2: {
     id: 2,
     text: 'this is todo2',
+    done: false,
   },
   3: {
     id: 3,
     text: 'this is todo3',
+    done: false,
   },
 }
 
@@ -21,6 +25,7 @@ interface InitialState {
   [todoId: string]: {
     id: number
     text: string
+    done: boolean
   }
 }
 
@@ -29,7 +34,13 @@ const TodoList: React.FC<Props> = () => {
   return (
     <div>
       {Object.keys(todos).map(todoId => (
-        <div key={todoId}>{todos[todoId].text}</div>
+        <Todo
+          key={todoId}
+          todoId={todoId}
+          text={todos[todoId].text}
+          done={todos[todoId].done}
+          onChange={(): void => console.log(todoId)}
+        />
       ))}
     </div>
   )
