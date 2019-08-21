@@ -1,6 +1,7 @@
 import React from 'react'
 import { Box, Button, Input } from '../Common'
 import ContentEditable, { ContentEditableEvent } from 'react-contenteditable'
+
 interface Props {
   text: string
   description: string
@@ -12,7 +13,7 @@ interface Props {
   onCancel(): void
 }
 
-export const QuickEdit: React.FC<Props> = ({
+const QuickEdit: React.FC<Props> = ({
   text,
   description,
   textPlaceholder,
@@ -45,3 +46,5 @@ export const QuickEdit: React.FC<Props> = ({
     </Box>
   )
 }
+
+export default QuickEdit
