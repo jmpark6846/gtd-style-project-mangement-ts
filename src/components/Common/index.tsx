@@ -32,6 +32,48 @@ export const Checkbox = styled.input``
 
 export const Heading = styled.h2``
 
-export const Pane = styled.div`
+interface PaneProps {
+  width?: string
+  position?: string
+  padding?: string
+  marginTop?: string
+  marginBottom?: string
+  marginLeft?: string
+}
+
+export const Pane = styled.div.attrs((props: PaneProps) => ({
+  width: props.width,
+  position: props.position,
+  padding: props.padding,
+  marginTop: props.marginTop,
+  marginBottom: props.marginBottom,
+  marginLeft: props.marginLeft,
+}))`
   background-color: white;
+  width: ${props => props.width};
+  position: ${props => props.position};
+  padding: ${props => props.padding};
+  margin-top: ${props => props.marginTop};
+  margin-bottom: ${props => props.marginBottom};
+  margin-left: ${props => props.marginLeft};
+`
+
+export const Box = styled(Pane)`
+  border: 1px solid #d9d9d9;
+  border-radius: 1rem;
+  padding: 1em 1.5em;
+  box-shadow: 0 5px 10px 0 rgba(0, 64, 128, 0.05);
+`
+
+interface InputProps {
+  marginBottom: string
+  minimal: boolean
+}
+export const Input = styled.input.attrs((props: InputProps) => ({
+  marginBottom: props.marginBottom,
+  minimal: props.minimal,
+}))`
+  width: 100%;
+  border: ${props => (props.minimal ? 'none' : 'initial')};
+  margin-bottom: ${props => props.marginBottom};
 `
