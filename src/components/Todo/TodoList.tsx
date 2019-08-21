@@ -4,10 +4,12 @@ import { useQuickEdit } from '../../hooks/useQuickEdit'
 import { Button } from '../Common'
 import QuickEdit from '../QuickEdit/QuickEdit'
 import Todo from './TodoContainer'
+import { TodoListContainerProps } from './TodoListContainer'
+import { dummyDocs } from '../../pages/ProjectDetailPage'
 
 const TodoListPane = styled.div`
   margin-bottom: 30px;
-  h3.name {
+  h3.title {
     font-weight: 600;
     font-size: 1.3rem;
   }
@@ -15,22 +17,10 @@ const TodoListPane = styled.div`
     color: grey;
   }
 `
-interface Props {
-  id: string
-  name: string
-  description: string
-  type: string
-  subdocs: {
-    [todoId: string]: {
-      id: string
-      text: string
-      done: boolean
-    }
-  }
-  onAddTodo(listId: string, text: string, description: string): void
-}
 
-export const TodoList: React.FC<Props> = ({
+interface TodoListProps extends TodoListContainerProps {}
+
+export const TodoList: React.FC<TodoListProps> = ({
   id: listId,
   subdocs,
   onAddTodo,
@@ -52,16 +42,14 @@ export const TodoList: React.FC<Props> = ({
     <TodoListPane>
       {rest.type == 'list' && (
         <div className="info-pane">
-          <h3 className="name">{rest.name}</h3>
+          <h3 className="title">{rest.title}</h3>
           <div className="description">{rest.description}</div>
         </div>
       )}
-      {Object.keys(subdocs).map(todoId => (
+      {Object.keys(subdocs || {}).map(todoId => (
         <Todo
           key={todoId}
-          todoId={todoId}
-          text={subdocs[todoId].text}
-          done={subdocs[todoId].done}
+          {...dummyDocs[todoId]}
           onChange={(): void => console.log(todoId)}
         />
       ))}

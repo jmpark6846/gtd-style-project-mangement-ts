@@ -1,5 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
+import { TodoContainerProps } from './TodoContainer'
 
 const TodoPane = styled.div`
   display: flex;
@@ -13,16 +14,12 @@ const TodoPane = styled.div`
   }
 `
 
-interface Props {
-  todoId: string
-  text: string
-  done: boolean
-  onChange(e: any): any
+interface TodoProps extends TodoContainerProps {
   onClick(e: any): any
 }
 
-export const Todo: React.FC<Props> = props => {
-  const { done, onClick, onChange, text } = props
+export const Todo: React.FC<TodoProps> = props => {
+  const { done, onClick, onChange, title } = props
   return (
     <TodoPane>
       <input
@@ -31,7 +28,7 @@ export const Todo: React.FC<Props> = props => {
         onClick={onClick}
         onChange={onChange}
       />
-      {text}
+      {title}
     </TodoPane>
   )
 }

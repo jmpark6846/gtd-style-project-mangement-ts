@@ -6,56 +6,106 @@ import QuickEdit from '../components/QuickEdit/QuickEditorContainer'
 import TodoList from '../components/Todo/TodoListContainer'
 import { useQuickEdit } from '../hooks/useQuickEdit'
 
-interface Project {
-  name: string
-  description: string
+export interface Document {
+  id: string
+  title: string
+  description?: string
   type: string
-  subdocs: {
-    [docId: string]: {
-      id: string
-      name: string
-      description: string
-      type: string
-      subdocs: {
-        [todoId: string]: { id: string; text: string; done: boolean }
-      }
-    }
+  user: string
+  done: boolean
+  subdocs?: {
+    [docId: string]: boolean
   }
 }
 
-const initialState: Project = {
-  name: '',
-  description: '',
-  type: 'project',
-  subdocs: {},
+export interface Documents {
+  [id: string]: Document
 }
-const dummyProject: Project = {
-  name: '블로그',
-  description: '2019 블로그 운영',
-  type: 'project',
-  subdocs: {
-    '1': {
-      id: '1',
-      name: '주제',
-      description: '블로그에 쓸만한 글감들',
-      type: 'list',
-      subdocs: {
-        '1': { id: '1', text: 'this is todo', done: true },
-        '2': { id: '2', text: 'this is todo', done: true },
-        '3': { id: '3', text: 'this is todo', done: true },
-      },
+
+const initialState: Documents = {
+  '56be54': {
+    id: '56be54',
+    title: '',
+    description: '',
+    type: 'project',
+    done: false,
+    user: '',
+    subdocs: {},
+  },
+}
+
+export const dummyDocs: Documents = {
+  '56be54': {
+    id: '56be54',
+    title: '블로그',
+    description: '2019 블로그 운영',
+    type: 'project',
+    user: 'jmpark6846',
+    done: false,
+    subdocs: {
+      '56be5q': true,
+      '56be5a': true,
     },
-    '2': {
-      id: '2',
-      name: '참고할만한 블로그들',
-      description: '영감을 받을만한 다른 블로그들',
-      type: 'list',
-      subdocs: {
-        '1': { id: '1', text: 'this is todo', done: true },
-        '2': { id: '2', text: 'this is todo', done: true },
-        '3': { id: '3', text: 'this is todo', done: true },
-      },
+  },
+  '56be5q': {
+    id: '56be5q',
+    title: '주제',
+    description: '블로그에 쓸만한 글감들',
+    type: 'list',
+    user: 'jmpark6846',
+    done: false,
+    subdocs: {
+      '56be5c': true,
+      '56be5h': true,
     },
+  },
+  '56be5a': {
+    id: '56be5a',
+    title: '참고할만한 블로그들',
+    description: '영감을 받을만한 다른 블로그들',
+    type: 'list',
+    user: 'jmpark6846',
+    done: false,
+    subdocs: {
+      '56be5p': true,
+      '56be5o': true,
+    },
+  },
+  '56be5c': {
+    id: '56be5c',
+    title: 'this is a todo',
+    description: 'this is a description',
+    type: 'todo',
+    user: 'jmpark6846',
+    done: false,
+    subdocs: {},
+  },
+  '56be5h': {
+    id: '56be5h',
+    title: 'this is a todo',
+    description: 'this is a description',
+    type: 'todo',
+    user: 'jmpark6846',
+    done: false,
+    subdocs: {},
+  },
+  '56be5p': {
+    id: '56be5p',
+    title: 'this is a todo',
+    description: 'this is a description',
+    type: 'todo',
+    user: 'jmpark6846',
+    done: false,
+    subdocs: {},
+  },
+  '56be5o': {
+    id: '56be5o',
+    title: 'this is a todo',
+    description: 'this is a description',
+    type: 'todo',
+    user: 'jmpark6846',
+    done: false,
+    subdocs: {},
   },
 }
 
@@ -63,7 +113,7 @@ const ProjectDetailPagePane = styled(Pane)`
   .information-pane {
     margin-bottom: 30px;
 
-    h2.name {
+    h2.title {
       font-weight: 700;
       font-size: 1.7rem;
     }
@@ -77,9 +127,10 @@ interface Props {}
 
 export const ProjectDetailPage: React.FC<Props> = () => {
   const [isLoading, setIsLoading] = useState(true)
-  const [project, setProject] = useState(initialState)
+  const [documents, setDocuments] = useState(initialState)
+  const [projectId, setProjectId] = useState('56be54')
   useEffect(() => {
-    setProject(dummyProject)
+    setDocuments(dummyDocs)
     setIsLoading(false)
   }, [isLoading])
 
@@ -97,61 +148,69 @@ export const ProjectDetailPage: React.FC<Props> = () => {
 
   const handleSubmit = useCallback(() => {
     const listId = shortid.generate()
-    const newList = {
-      name: textEdit,
+    const newList: Document = {
+      id: listId,
+      title: textEdit,
       description: descriptionEdit,
       type: 'list',
+      user: 'jmpark6846',
+      done: false,
       subdocs: {},
     }
-    setProject({
-      ...project,
-      subdocs: {
-        ...project.subdocs,
-        [listId]: newList,
+    setDocuments({
+      ...documents,
+      [projectId]: {
+        ...documents[projectId],
+        subdocs: {
+          ...documents[projectId].subdocs,
+          [listId]: true,
+        },
       },
+      [listId]: newList,
     })
     setTextEdit('')
     setDescriptionEdit('')
-  }, [project, textEdit, descriptionEdit])
+  }, [documents, textEdit, descriptionEdit])
 
   const handleAddTodo = useCallback(
-    (listId, text, description) => {
+    (listId, title, description) => {
       const todoId = shortid.generate()
-      const newTodo = {
+      const newTodo: Document = {
         id: todoId,
-        text,
+        type: 'todo',
+        title,
         description,
+        user: 'jmpark6846',
         done: false,
+        subdocs: {},
       }
-      const newProject = {
-        ...project,
-        subdocs: {
-          ...project.subdocs,
-          [listId]: {
-            ...project.subdocs[listId],
-            subdocs: {
-              ...project.subdocs[listId].subdocs,
-              [todoId]: newTodo,
-            },
+      console.log(listId, documents[listId])
+      setDocuments({
+        ...documents,
+        [listId]: {
+          ...documents[listId],
+          subdocs: {
+            ...documents[listId].subdocs,
+            [todoId]: true,
           },
         },
-      }
-      setProject(newProject)
+        [todoId]: newTodo,
+      })
     },
-    [project]
+    [documents]
   )
-  console.log(project)
+  console.log(documents)
   return (
     <ProjectDetailPagePane>
       <div className="information-pane">
-        <h2 className="name">{project.name}</h2>
-        <div className="description">{project.description}</div>
+        <h2 className="title">{documents[projectId].title}</h2>
+        <div className="description">{documents[projectId].description}</div>
       </div>
       <div className="list">
-        {Object.keys(project.subdocs).map(projectId => (
+        {Object.keys(documents[projectId].subdocs || {}).map(listId => (
           <TodoList
-            key={projectId}
-            {...project.subdocs[projectId]}
+            key={listId}
+            {...documents[listId]}
             onAddTodo={handleAddTodo}
           />
         ))}

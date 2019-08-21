@@ -1,16 +1,13 @@
 import React, { useCallback } from 'react'
 import { Todo } from './Todo'
+import { Document } from '../../pages/ProjectDetailPage'
 
-interface Props {
-  todoId: string
-  text: string
-  done: boolean
+export interface TodoContainerProps extends Document {
   onChange(e: any): any
 }
 
-const TodoContainer: React.FC<Props> = props => {
+const TodoContainer: React.FC<TodoContainerProps> = props => {
   const handleClick = useCallback(e => e.stopPropagation(), [])
-
   return <Todo {...props} onClick={handleClick} />
 }
 

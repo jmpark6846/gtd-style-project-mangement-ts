@@ -1,23 +1,12 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { TodoList } from './TodoList'
-import { useInputState } from '../../hooks/useInputState'
+import { Document } from '../../pages/ProjectDetailPage'
 
-interface Props {
-  id: string
-  name: string
-  description: string
-  type: string
-  subdocs: {
-    [todoId: string]: {
-      id: string
-      text: string
-      done: boolean
-    }
-  }
+export interface TodoListContainerProps extends Document {
   onAddTodo(listId: string, text: string, description: string): void
 }
 
-const TodoListContainer: React.FC<Props> = props => {
+const TodoListContainer: React.FC<TodoListContainerProps> = props => {
   return <TodoList {...props} />
 }
 
