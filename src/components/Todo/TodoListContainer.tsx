@@ -1,8 +1,11 @@
 import React from 'react'
-import Todo from './TodoContainer'
+import { TodoList } from './TodoList'
 
 interface Props {
-  todos: {
+  name: string
+  description: string
+  type: string
+  subdocs: {
     [todoId: string]: {
       id: number
       text: string
@@ -11,20 +14,8 @@ interface Props {
   }
 }
 
-const TodoListContainer: React.FC<Props> = ({ todos }) => {
-  return (
-    <div>
-      {Object.keys(todos).map(todoId => (
-        <Todo
-          key={todoId}
-          todoId={todoId}
-          text={todos[todoId].text}
-          done={todos[todoId].done}
-          onChange={(): void => console.log(todoId)}
-        />
-      ))}
-    </div>
-  )
+const TodoListContainer: React.FC<Props> = props => {
+  return <TodoList {...props} />
 }
 
 export default TodoListContainer

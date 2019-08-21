@@ -4,6 +4,7 @@ interface ButtonProps {
   small?: boolean
   minimal?: boolean
 }
+
 export const Button = styled.button<ButtonProps>`
   max-width: 100%;
   padding: 0.5em 1.2em;
@@ -28,3 +29,9 @@ export const Button = styled.button<ButtonProps>`
 `
 
 export const Checkbox = styled.input``
+
+export const Heading = styled.h2``
+
+export const Pane = styled.div`
+  background-color: white;
+`
