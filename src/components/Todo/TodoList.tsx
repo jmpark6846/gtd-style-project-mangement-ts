@@ -1,5 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
+import { Link } from '@reach/router'
 import { useQuickEdit } from '../../hooks/useQuickEdit'
 import { Button } from '../Common'
 import QuickEdit from '../QuickEdit/QuickEdit'
@@ -40,9 +41,11 @@ export const TodoList: React.FC<TodoListProps> = ({
 
   return (
     <TodoListPane>
-      {rest.type == 'list' && (
+      {rest.type === 'list' && (
         <div className="info-pane">
-          <h3 className="title">{rest.title}</h3>
+          <h3 className="title">
+            <Link to={`/${listId}`}>{rest.title}</Link>
+          </h3>
           <div className="description">{rest.description}</div>
         </div>
       )}

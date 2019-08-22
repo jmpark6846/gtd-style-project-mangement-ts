@@ -5,6 +5,8 @@ import { Button, Pane } from '../components/Common'
 import QuickEdit from '../components/QuickEdit/QuickEditorContainer'
 import TodoList from '../components/Todo/TodoListContainer'
 import { useQuickEdit } from '../hooks/useQuickEdit'
+import { RouteComponentProps } from '@reach/router'
+import { db } from '../db'
 
 export interface Document {
   id: string
@@ -22,18 +24,24 @@ export interface Documents {
   [id: string]: Document
 }
 
+interface State {
+  documents: string
+  setDocuments: React.Dispatch<React.SetStateAction<string>>
+  isLoading: boolean
+  setIsLoading: React.Dispatch<React.SetStateAction<string>>
+}
+
 const initialState: Documents = {
-  '56be54': {
-    id: '56be54',
-    title: '',
-    description: '',
+  '1': {
+    id: '1',
+    title: 'dummy title',
+    description: 'dummy desc',
     type: 'project',
     done: false,
-    user: '',
+    user: 'jmpark6846',
     subdocs: {},
   },
 }
-
 export const dummyDocs: Documents = {
   '56be54': {
     id: '56be54',
@@ -123,16 +131,37 @@ const ProjectDetailPagePane = styled(Pane)`
   }
 `
 
-interface Props {}
+interface Props extends RouteComponentProps {
+  projectId?: string
+}
 
-export const ProjectDetailPage: React.FC<Props> = () => {
+export const ProjectDetailPage: React.FC<Props> = props => {
   const [isLoading, setIsLoading] = useState(true)
   const [documents, setDocuments] = useState(initialState)
-  const [projectId, setProjectId] = useState('56be54')
+  const projectId = props.projectId!
   useEffect(() => {
-    setDocuments(dummyDocs)
-    setIsLoading(false)
-  }, [isLoading])
+    const fetchDocuments = async (): Promise<void> => {
+      try {
+        const doc = await db
+          .collection('documents')
+          .doc(projectId)
+          .get()
+        // return result
+        if (doc.exists) {
+          console.log(doc.data())
+        } else {
+          console.log('no')
+        }
+      } catch (error) {
+        console.error('error fetching documents: ' + error)
+      }
+    }
+
+    fetchDocuments()
+    // console.log
+    // setDocuments(result)
+    // setIsLoading(false)
+  }, [projectId])
 
   const {
     textEdit,
@@ -170,7 +199,26 @@ export const ProjectDetailPage: React.FC<Props> = () => {
     })
     setTextEdit('')
     setDescriptionEdit('')
-  }, [documents, textEdit, descriptionEdit])
+
+    // dummyDocs = {
+    //   ...documents,
+    //   [projectId]: {
+    //     ...documents[projectId],
+    //     subdocs: {
+    //       ...documents[projectId].subdocs,
+    //       [listId]: true,
+    //     },
+    //   },
+    //   [listId]: newList,
+    // }
+  }, [
+    documents,
+    projectId,
+    setTextEdit,
+    textEdit,
+    setDescriptionEdit,
+    descriptionEdit,
+  ])
 
   const handleAddTodo = useCallback(
     (listId, title, description) => {
@@ -184,7 +232,6 @@ export const ProjectDetailPage: React.FC<Props> = () => {
         done: false,
         subdocs: {},
       }
-      console.log(listId, documents[listId])
       setDocuments({
         ...documents,
         [listId]: {
@@ -196,11 +243,25 @@ export const ProjectDetailPage: React.FC<Props> = () => {
         },
         [todoId]: newTodo,
       })
+
+      // dummyDocs = {
+      //   ...documents,
+      //   [listId]: {
+      //     ...documents[listId],
+      //     subdocs: {
+      //       ...documents[listId].subdocs,
+      //       [todoId]: true,
+      //     },
+      //   },
+      //   [todoId]: newTodo,
+      // }
     },
     [documents]
   )
   console.log(documents)
-  return (
+  return isLoading ? (
+    <div>loading..</div>
+  ) : (
     <ProjectDetailPagePane>
       <div className="information-pane">
         <h2 className="title">{documents[projectId].title}</h2>

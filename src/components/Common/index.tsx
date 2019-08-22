@@ -30,8 +30,6 @@ export const Button = styled.button<ButtonProps>`
 
 export const Checkbox = styled.input``
 
-export const Heading = styled.h2``
-
 interface PaneProps {
   width?: string
   position?: string
@@ -76,4 +74,9 @@ export const Input = styled.input.attrs((props: InputProps) => ({
   width: 100%;
   border: ${props => (props.minimal ? 'none' : 'initial')};
   margin-bottom: ${props => props.marginBottom};
+`
+
+export const Heading = styled.h2`
+  font-weight: 700;
+  font-size: 1.7rem;
 `
