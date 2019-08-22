@@ -17,8 +17,7 @@ const DialogBox = styled(Box)`
   height: fit-content;
   background-color: white;
   margin-top: 40px;
-  box-shadow: rgba(67, 90, 111, 0.3) 0px 0px 1px,
-    rgba(67, 90, 111, 0.47) 0px 16px 24px -8px;
+  box-shadow: rgba(67, 90, 111, 0.3) 0px 0px 1px, rgba(67, 90, 111, 0.47) 0px 16px 24px -8px;
   border-width: 0;
   width: 560px;
   max-width: calc(100% - 70px);

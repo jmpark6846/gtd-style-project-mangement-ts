@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext, useReducer } from 'react'
 import './App.css'
 import { Router } from '@reach/router'
 import { ProjectDetailPage } from './pages/ProjectDetailPage'
@@ -6,22 +6,22 @@ import { ListDetailPage } from './pages/ListDetailPage'
 import { db } from './db'
 import { SignInPage } from './pages/SignInPage'
 import { ProjectPage } from './pages/ProjectPage'
+import documentReducer from './reducers/DocumentReducers'
+import DocumentContext from './contexts/DocumentContext'
+import { User } from './types/User'
 
-export interface User {
-  email: string
-  id: string
-  projects: object
-  username: string
-}
-
-const initalState: User = {
+const initalUserState: User = {
   email: '',
   id: '',
   projects: {},
   username: '',
 }
+
 const App: React.FC = () => {
-  const [user, setUser] = useState(initalState)
+  const [documents, dispatch] = useReducer(documentReducer, {})
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [user, setUser] = useState(initalUserState)
+
   useEffect(() => {
     const fetchUser = async (): Promise<void> => {
       try {
@@ -33,6 +33,7 @@ const App: React.FC = () => {
 
         if (user != null) {
           setUser(user as User)
+          setIsLoggedIn(true)
         }
       } catch (error) {
         console.log('error fetching user: ' + error)
@@ -40,15 +41,18 @@ const App: React.FC = () => {
     }
     fetchUser()
   }, [])
-  console.log(user)
+  console.log(documents, user)
+
   return (
     <div className="App">
-      <Router>
-        <SignInPage path="/" />
-        <ProjectPage path="projects" user={user} />
-        {/* <ProjectDetailPage path="projects/:projectId" />
-        <ListDetailPage path="projects/:projectId/lists/:listId" /> */}
-      </Router>
+      <DocumentContext.Provider value={{ documents, dispatch }}>
+        <Router>
+          <SignInPage path="/" />
+          <ProjectPage path="projects" user={user} />
+          <ProjectDetailPage path="projects/:projectId" isLoggedin={isLoggedIn} user={user} />
+          {/* <ListDetailPage path="projects/:projectId/lists/:listId" /> */}
+        </Router>
+      </DocumentContext.Provider>
     </div>
   )
 }

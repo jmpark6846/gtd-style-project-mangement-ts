@@ -8,8 +8,9 @@ import { db } from '../db'
 import ContentEditable from 'react-contenteditable'
 import { useQuickEdit } from '../hooks/useQuickEdit'
 import Dialog from '../components/Dialog'
-import { Document, Documents } from './ProjectDetailPage'
-import { User } from '../App'
+import { Document } from '../types/Document'
+import { Documents } from '../types/Documents'
+import { User } from '../types/User'
 
 interface Props extends RouteComponentProps {
   user: User
@@ -58,7 +59,8 @@ export const ProjectPage: React.FC<Props> = props => {
         description: descriptionEdit,
         done: false,
         subdocs: {},
-        type: 'project',
+        projectId: null,
+        type: 0,
         user: props.user.id,
       }
       try {
@@ -89,21 +91,18 @@ export const ProjectPage: React.FC<Props> = props => {
     descriptionEdit,
     props.user.id,
   ])
-
   return (
     <div>
       <Pane marginBottom="15px">
         <Heading>Project</Heading>
       </Pane>
       {Object.keys(projectList).map(projectId => (
-        <Link key={projectId} to={`${props.path}/${projectId}`}>
+        <Link key={projectId} to={`${projectId}`}>
           <ProjectBox>{projectId}</ProjectBox>
         </Link>
       ))}
       <Pane marginTop="30px">
-        <Button onClick={(): void => setIsDialogOpen(true)}>
-          프로젝트 만들기
-        </Button>
+        <Button onClick={(): void => setIsDialogOpen(true)}>프로젝트 만들기</Button>
       </Pane>
       {isDialogOpen && (
         <Dialog onClose={(): void => setIsDialogOpen(false)}>

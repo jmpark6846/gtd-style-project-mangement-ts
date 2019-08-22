@@ -25,16 +25,8 @@ const QuickEdit: React.FC<Props> = ({
 }) => {
   return (
     <Box>
-      <Input
-        placeholder={textPlaceholder}
-        onChange={onTextChange}
-        value={text}
-      />
-      <ContentEditable
-        html={description}
-        placeholder={descPlaceholder}
-        onChange={onDescChange}
-      />
+      <Input placeholder={textPlaceholder} onChange={onTextChange} value={text} />
+      <ContentEditable html={description} placeholder={descPlaceholder} onChange={onDescChange} />
       <div className="control-pane">
         <Button small onClick={onSubmit}>
           추가하기

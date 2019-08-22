@@ -22,12 +22,7 @@ export const Todo: React.FC<TodoProps> = props => {
   const { done, onClick, onChange, title } = props
   return (
     <TodoPane>
-      <input
-        type="checkbox"
-        checked={done}
-        onClick={onClick}
-        onChange={onChange}
-      />
+      <input type="checkbox" checked={done} onClick={onClick} onChange={onChange} />
       {title}
     </TodoPane>
   )

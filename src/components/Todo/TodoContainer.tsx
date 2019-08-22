@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react'
 import { Todo } from './Todo'
-import { Document } from '../../pages/ProjectDetailPage'
+import { Document } from '../../types/Document'
 
 export interface TodoContainerProps extends Document {
   onChange(e: any): any

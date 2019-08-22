@@ -9,9 +9,7 @@ export const useInputState = (
   (e: React.ChangeEvent<HTMLInputElement> | ContentEditableEvent) => void
 ] => {
   const [state, setState] = useState(initalState)
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement> | ContentEditableEvent
-  ): void => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement> | ContentEditableEvent): void => {
     if (e != null && e.target != null) {
       setState(e.target.value)
     }

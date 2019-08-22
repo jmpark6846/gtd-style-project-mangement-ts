@@ -1,8 +1,9 @@
 import React from 'react'
 import { TodoList } from './TodoList'
-import { Document } from '../../pages/ProjectDetailPage'
+import { Document } from '../../types/Document'
 
-export interface TodoListContainerProps extends Document {
+export interface TodoListContainerProps {
+  list: Document
   onAddTodo(listId: string, text: string, description: string): void
 }
 

@@ -10,9 +10,7 @@ interface Props {
 interface State {
   textEdit: string
   setTextEdit: React.Dispatch<React.SetStateAction<string>>
-  handleTextEditChange: (
-    e: React.ChangeEvent<HTMLInputElement> | ContentEditableEvent
-  ) => void
+  handleTextEditChange: (e: React.ChangeEvent<HTMLInputElement> | ContentEditableEvent) => void
   descriptionEdit: string
   setDescriptionEdit: React.Dispatch<React.SetStateAction<string>>
   handleDescriptionEditChange: (
@@ -24,14 +22,10 @@ interface State {
 }
 
 export const useQuickEdit = (props: Props): State => {
-  const [textEdit, setTextEdit, handleTextEditChange] = useInputState(
-    props.text || ''
+  const [textEdit, setTextEdit, handleTextEditChange] = useInputState(props.text || '')
+  const [descriptionEdit, setDescriptionEdit, handleDescriptionEditChange] = useInputState(
+    props.description || ''
   )
-  const [
-    descriptionEdit,
-    setDescriptionEdit,
-    handleDescriptionEditChange,
-  ] = useInputState(props.description || '')
   const [isEditOpen, setIsEditOpen] = useState(false)
   const handleCancel = (): void => {
     setIsEditOpen(false)

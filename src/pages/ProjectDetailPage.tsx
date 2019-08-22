@@ -1,121 +1,16 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import { RouteComponentProps } from '@reach/router'
+import React, { useCallback, useEffect, useState, useContext } from 'react'
 import shortid from 'short-id'
 import styled from 'styled-components'
 import { Button, Pane } from '../components/Common'
 import QuickEdit from '../components/QuickEdit/QuickEditorContainer'
 import TodoList from '../components/Todo/TodoListContainer'
-import { useQuickEdit } from '../hooks/useQuickEdit'
-import { RouteComponentProps } from '@reach/router'
 import { db } from '../db'
-
-export interface Document {
-  id: string
-  title: string
-  description?: string
-  type: string
-  user: string
-  done: boolean
-  subdocs?: {
-    [docId: string]: boolean
-  }
-}
-
-export interface Documents {
-  [id: string]: Document
-}
-
-interface State {
-  documents: string
-  setDocuments: React.Dispatch<React.SetStateAction<string>>
-  isLoading: boolean
-  setIsLoading: React.Dispatch<React.SetStateAction<string>>
-}
-
-const initialState: Documents = {
-  '1': {
-    id: '1',
-    title: 'dummy title',
-    description: 'dummy desc',
-    type: 'project',
-    done: false,
-    user: 'jmpark6846',
-    subdocs: {},
-  },
-}
-export const dummyDocs: Documents = {
-  '56be54': {
-    id: '56be54',
-    title: '블로그',
-    description: '2019 블로그 운영',
-    type: 'project',
-    user: 'jmpark6846',
-    done: false,
-    subdocs: {
-      '56be5q': true,
-      '56be5a': true,
-    },
-  },
-  '56be5q': {
-    id: '56be5q',
-    title: '주제',
-    description: '블로그에 쓸만한 글감들',
-    type: 'list',
-    user: 'jmpark6846',
-    done: false,
-    subdocs: {
-      '56be5c': true,
-      '56be5h': true,
-    },
-  },
-  '56be5a': {
-    id: '56be5a',
-    title: '참고할만한 블로그들',
-    description: '영감을 받을만한 다른 블로그들',
-    type: 'list',
-    user: 'jmpark6846',
-    done: false,
-    subdocs: {
-      '56be5p': true,
-      '56be5o': true,
-    },
-  },
-  '56be5c': {
-    id: '56be5c',
-    title: 'this is a todo',
-    description: 'this is a description',
-    type: 'todo',
-    user: 'jmpark6846',
-    done: false,
-    subdocs: {},
-  },
-  '56be5h': {
-    id: '56be5h',
-    title: 'this is a todo',
-    description: 'this is a description',
-    type: 'todo',
-    user: 'jmpark6846',
-    done: false,
-    subdocs: {},
-  },
-  '56be5p': {
-    id: '56be5p',
-    title: 'this is a todo',
-    description: 'this is a description',
-    type: 'todo',
-    user: 'jmpark6846',
-    done: false,
-    subdocs: {},
-  },
-  '56be5o': {
-    id: '56be5o',
-    title: 'this is a todo',
-    description: 'this is a description',
-    type: 'todo',
-    user: 'jmpark6846',
-    done: false,
-    subdocs: {},
-  },
-}
+import { useQuickEdit } from '../hooks/useQuickEdit'
+import DocumentContext from '../contexts/DocumentContext'
+import { User } from '../types/User'
+import { Documents } from '../types/Documents'
+import { Document } from '../types/Document'
 
 const ProjectDetailPagePane = styled(Pane)`
   .information-pane {
@@ -133,35 +28,50 @@ const ProjectDetailPagePane = styled(Pane)`
 
 interface Props extends RouteComponentProps {
   projectId?: string
+  user: User
+  isLoggedin: boolean
 }
 
 export const ProjectDetailPage: React.FC<Props> = props => {
+  const { documents, dispatch } = useContext(DocumentContext)
   const [isLoading, setIsLoading] = useState(true)
-  const [documents, setDocuments] = useState(initialState)
   const projectId = props.projectId!
-  useEffect(() => {
-    const fetchDocuments = async (): Promise<void> => {
-      try {
-        const doc = await db
-          .collection('documents')
-          .doc(projectId)
-          .get()
-        // return result
-        if (doc.exists) {
-          console.log(doc.data())
-        } else {
-          console.log('no')
-        }
-      } catch (error) {
-        console.error('error fetching documents: ' + error)
-      }
-    }
 
-    fetchDocuments()
-    // console.log
-    // setDocuments(result)
-    // setIsLoading(false)
-  }, [projectId])
+  useEffect(() => {
+    if (props.isLoggedin) {
+      const fetchProject = async (): Promise<void> => {
+        try {
+          const project = await db
+            .collection('documents')
+            .where('user', '==', props.user.id)
+            .where('id', '==', projectId)
+            .get()
+            .then(snapshot => (snapshot.empty ? {} : snapshot.docs[0].data()))
+
+          const documentSnapshot = await db
+            .collection('documents')
+            .where('user', '==', props.user.id)
+            .where('projectId', '==', projectId)
+            .where('type', '>', 0)
+            .get()
+
+          const docs: Documents = {}
+          documentSnapshot.forEach(doc => {
+            const _doc = doc.data() as Document
+            docs[_doc.id] = _doc
+          })
+
+          docs[project.id] = project as Document
+          dispatch({ type: 'SET_DOCUMENTS', payload: docs })
+          setIsLoading(false)
+        } catch (error) {
+          console.error('error fetching documents: ' + error)
+        }
+      }
+
+      fetchProject()
+    }
+  }, [props.isLoggedin, props.user.id])
 
   const {
     textEdit,
@@ -181,84 +91,41 @@ export const ProjectDetailPage: React.FC<Props> = props => {
       id: listId,
       title: textEdit,
       description: descriptionEdit,
-      type: 'list',
-      user: 'jmpark6846',
+      type: 1,
+      user: props.user.id,
+      projectId,
       done: false,
       subdocs: {},
     }
-    setDocuments({
-      ...documents,
-      [projectId]: {
-        ...documents[projectId],
-        subdocs: {
-          ...documents[projectId].subdocs,
-          [listId]: true,
-        },
-      },
-      [listId]: newList,
+    dispatch({
+      type: 'ADD_DOCUMENT',
+      payload: { parent: projectId, id: listId, document: newList },
     })
     setTextEdit('')
     setDescriptionEdit('')
-
-    // dummyDocs = {
-    //   ...documents,
-    //   [projectId]: {
-    //     ...documents[projectId],
-    //     subdocs: {
-    //       ...documents[projectId].subdocs,
-    //       [listId]: true,
-    //     },
-    //   },
-    //   [listId]: newList,
-    // }
-  }, [
-    documents,
-    projectId,
-    setTextEdit,
-    textEdit,
-    setDescriptionEdit,
-    descriptionEdit,
-  ])
+  }, [props.user.id, projectId, textEdit, descriptionEdit])
 
   const handleAddTodo = useCallback(
     (listId, title, description) => {
       const todoId = shortid.generate()
       const newTodo: Document = {
         id: todoId,
-        type: 'todo',
+        type: 2,
         title,
         description,
-        user: 'jmpark6846',
+        user: props.user.id,
+        projectId,
         done: false,
         subdocs: {},
       }
-      setDocuments({
-        ...documents,
-        [listId]: {
-          ...documents[listId],
-          subdocs: {
-            ...documents[listId].subdocs,
-            [todoId]: true,
-          },
-        },
-        [todoId]: newTodo,
+      dispatch({
+        type: 'ADD_DOCUMENT',
+        payload: { parent: listId, id: todoId, document: newTodo },
       })
-
-      // dummyDocs = {
-      //   ...documents,
-      //   [listId]: {
-      //     ...documents[listId],
-      //     subdocs: {
-      //       ...documents[listId].subdocs,
-      //       [todoId]: true,
-      //     },
-      //   },
-      //   [todoId]: newTodo,
-      // }
     },
-    [documents]
+    [props.user.id, projectId]
   )
-  console.log(documents)
+  const handleAddClick = useCallback((): void => setIsEditOpen(true), [])
   return isLoading ? (
     <div>loading..</div>
   ) : (
@@ -269,11 +136,7 @@ export const ProjectDetailPage: React.FC<Props> = props => {
       </div>
       <div className="list">
         {Object.keys(documents[projectId].subdocs || {}).map(listId => (
-          <TodoList
-            key={listId}
-            {...documents[listId]}
-            onAddTodo={handleAddTodo}
-          />
+          <TodoList key={listId} list={documents[listId]} onAddTodo={handleAddTodo} />
         ))}
         {isEditOpen ? (
           <QuickEdit
@@ -287,9 +150,7 @@ export const ProjectDetailPage: React.FC<Props> = props => {
             onCancel={handleCancel}
           />
         ) : (
-          <Button onClick={(): void => setIsEditOpen(true)}>
-            리스트 추가하기
-          </Button>
+          <Button onClick={handleAddClick}>리스트 추가하기</Button>
         )}
       </div>
     </ProjectDetailPagePane>
