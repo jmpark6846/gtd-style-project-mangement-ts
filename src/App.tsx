@@ -1,13 +1,14 @@
-import React, { useState, useEffect, useContext, useReducer } from 'react'
-import './App.css'
 import { Router } from '@reach/router'
-import { ProjectDetailPage } from './pages/ProjectDetailPage'
-import { ListDetailPage } from './pages/ListDetailPage'
-import { db } from './db'
-import { SignInPage } from './pages/SignInPage'
-import { ProjectPage } from './pages/ProjectPage'
-import documentReducer from './reducers/DocumentReducers'
+import React, { useEffect, useReducer, useState } from 'react'
+import './App.css'
 import DocumentContext from './contexts/DocumentContext'
+import { db } from './db'
+import { ListDetailPage } from './pages/ListDetailPage'
+import { ProjectDetailPage } from './pages/ProjectDetailPage'
+import { ProjectPage } from './pages/ProjectPage'
+import { SignInPage } from './pages/SignInPage'
+import { SignUpPage } from './pages/SignUpPage'
+import documentReducer from './reducers/DocumentReducers'
 import { User } from './types/User'
 
 const initalUserState: User = {
@@ -48,6 +49,7 @@ const App: React.FC = () => {
       <DocumentContext.Provider value={{ dispatch }}>
         <Router>
           <SignInPage path="/" />
+          <SignUpPage path="signup" />
           <ProjectPage path="projects" user={user} />
           <ProjectDetailPage
             path="projects/:projectId"

@@ -72,8 +72,31 @@ export const Input = styled.input.attrs((props: InputProps) => ({
   minimal: props.minimal,
 }))`
   width: 100%;
-  border: ${props => (props.minimal ? 'none' : 'initial')};
+  border: ${props => (props.minimal ? 'none' : '1px solid #d9d9d9')};
+
+  border-radius: 5px;
+  border: 1px solid #bfbfbf;
+  padding: 10px;
+  background-color: #fff;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  -webkit-transition: box-shadow 0.15s ease-in-out;
+  -moz-transition: box-shadow 0.15s ease-in-out;
+  -ms-transition: box-shadow 0.15s ease-in-out;
+  transition: box-shadow 0.15s ease-in-out;
+  text-decoration: none;
+  white-space: normal;
+  vertical-align: middle;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
   margin-bottom: ${props => props.marginBottom};
+
+  :focus {
+    outline: none;
+    border-color: #a4d2ff;
+    box-shadow: 0 0 6px rgba(27, 106, 201, 0.5);
+  }
 `
 
 export const Heading = styled.h2`
