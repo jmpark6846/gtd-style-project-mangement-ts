@@ -24,7 +24,7 @@ interface TodoListProps extends TodoListContainerProps {
 }
 
 export const TodoList: React.FC<TodoListProps> = props => {
-  const {
+  const [
     textEdit,
     descriptionEdit,
     isEditOpen,
@@ -32,7 +32,7 @@ export const TodoList: React.FC<TodoListProps> = props => {
     handleTextEditChange,
     handleDescriptionEditChange,
     handleCancel,
-  } = useQuickEdit({ text: '', description: '' })
+  ] = useQuickEdit({ text: '', description: '' })
 
   return (
     <TodoListPane>

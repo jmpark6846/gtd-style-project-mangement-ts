@@ -7,25 +7,23 @@ interface Props {
   description?: string
 }
 
-interface State {
-  textEdit: string
-  descriptionEdit: string
-  isEditOpen: boolean
-  setEdits(props: { text?: string; description?: string; isOpen?: boolean }): void
-  handleTextEditChange: (e: React.ChangeEvent<HTMLInputElement> | ContentEditableEvent) => void
-  handleCancel(): void
-  handleDescriptionEditChange: (
-    e: React.ChangeEvent<HTMLInputElement> | ContentEditableEvent
-  ) => void
-}
-
-export const useQuickEdit = (props: Props): State => {
+export const useQuickEdit = (
+  props: Props
+): [
+  string,
+  string,
+  boolean,
+  (props: { text?: string; description?: string; isOpen?: boolean }) => void,
+  (e: React.ChangeEvent<HTMLInputElement> | ContentEditableEvent) => void,
+  (e: React.ChangeEvent<HTMLInputElement> | ContentEditableEvent) => void,
+  () => void
+] => {
   const [textEdit, setTextEdit, handleTextEditChange] = useInputState(props.text)
   const [descriptionEdit, setDescriptionEdit, handleDescriptionEditChange] = useInputState(
     props.description || ''
   )
   const [isEditOpen, setIsEditOpen] = useState(false)
-  const setEdits = (props: { text: string; description: string; isOpen: boolean }): void => {
+  const setEdits = (props: { text?: string; description?: string; isOpen?: boolean }): void => {
     const { text, description, isOpen } = props
     if (text != null) setTextEdit(text)
     if (description != null) setDescriptionEdit(description)
@@ -36,7 +34,7 @@ export const useQuickEdit = (props: Props): State => {
     setTextEdit('')
     setDescriptionEdit('')
   }
-  return {
+  return [
     textEdit,
     descriptionEdit,
     isEditOpen,
@@ -44,5 +42,5 @@ export const useQuickEdit = (props: Props): State => {
     handleTextEditChange,
     handleDescriptionEditChange,
     handleCancel,
-  }
+  ]
 }

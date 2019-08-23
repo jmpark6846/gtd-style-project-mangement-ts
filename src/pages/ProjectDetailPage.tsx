@@ -72,7 +72,34 @@ export const ProjectDetailPage: React.FC<Props> = props => {
     }
   }, [props.isLoggedin, props.user.id])
 
-  const {
+  const [
+    textEditProject,
+    descriptionEditProject,
+    isEditOpenProject,
+    setEditsProject,
+    handleTextEditChangeProject,
+    handleDescriptionEditChangeProject,
+    handleCancelProject,
+  ] = useQuickEdit({ text: '', description: '' })
+
+  const handleClickEditProject = (): void =>
+    setEditsProject({
+      text: props.documents[projectId].title,
+      description: props.documents[projectId].description,
+      isOpen: true,
+    })
+
+  const handleSubmitProject = useCallback((): void => {
+    dispatch({
+      type: 'CHANGE_DOCUMENT',
+      payload: { id: projectId, title: textEditProject, description: descriptionEditProject },
+    })
+    setEditsProject({
+      isOpen: false,
+    })
+  }, [textEditProject, descriptionEditProject])
+
+  const [
     textEdit,
     descriptionEdit,
     isEditOpen,
@@ -80,7 +107,7 @@ export const ProjectDetailPage: React.FC<Props> = props => {
     handleTextEditChange,
     handleDescriptionEditChange,
     handleCancel,
-  } = useQuickEdit({ text: '', description: '' })
+  ] = useQuickEdit({ text: '', description: '' })
 
   const handleSubmit = useCallback(() => {
     const listId = shortid.generate()
@@ -101,27 +128,6 @@ export const ProjectDetailPage: React.FC<Props> = props => {
     setEdits({ text: '', description: '' })
   }, [props.user.id, projectId, textEdit, descriptionEdit])
 
-  const handleAddTodo = useCallback(
-    (listId, title, description) => {
-      const todoId = shortid.generate()
-      const newTodo: Document = {
-        id: todoId,
-        type: 2,
-        title,
-        description,
-        user: props.user.id,
-        projectId,
-        done: false,
-        subdocs: {},
-      }
-      dispatch({
-        type: 'ADD_DOCUMENT',
-        payload: { parent: listId, id: todoId, document: newTodo },
-      })
-    },
-    [props.user.id, projectId]
-  )
-
   const handleAddClick = useCallback((): void => setEdits({ isOpen: true }), [])
 
   const getTodosByListId = useCallback(
@@ -138,8 +144,24 @@ export const ProjectDetailPage: React.FC<Props> = props => {
   ) : (
     <ProjectDetailPagePane>
       <div className="information-pane">
-        <h2 className="title">{props.documents[projectId].title}</h2>
-        <div className="description">{props.documents[projectId].description}</div>
+        {isEditOpenProject ? (
+          <QuickEdit
+            text={textEditProject}
+            description={descriptionEditProject}
+            textPlaceholder="새 리스트"
+            descPlaceholder="설명(선택)"
+            onTextChange={handleTextEditChangeProject}
+            onDescChange={handleDescriptionEditChangeProject}
+            onSubmit={handleSubmitProject}
+            onCancel={handleCancelProject}
+          />
+        ) : (
+          <div>
+            <h2 className="title">{props.documents[projectId].title}</h2>
+            <div className="description">{props.documents[projectId].description}</div>
+            <Button onClick={handleClickEditProject}>수정</Button>
+          </div>
+        )}
       </div>
       <div className="list">
         {Object.keys(props.documents[projectId].subdocs || {}).map(listId => (

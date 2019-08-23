@@ -25,14 +25,14 @@ interface TodoProps {
 }
 
 export const Todo: React.FC<TodoProps> = props => {
-  const {
+  const [
     textEdit,
     descriptionEdit,
     isEditOpen,
     setEdits,
     handleTextEditChange,
     handleDescriptionEditChange,
-  } = useQuickEdit({ text: props.todo.title, description: props.todo.description })
+  ] = useQuickEdit({ text: props.todo.title, description: props.todo.description })
 
   const handleSubmit = useCallback(() => {
     props.onChangeTodo(textEdit, descriptionEdit)

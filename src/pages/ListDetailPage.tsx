@@ -1,13 +1,15 @@
 import React, { useEffect, useContext, useState, useCallback } from 'react'
 import styled from 'styled-components'
 import { Link, RouteComponentProps } from '@reach/router'
-import { Pane } from '../components/Common'
+import { Pane, Button } from '../components/Common'
 import TodoList from '../components/Todo/TodoListContainer'
 import { User } from '../types/User'
 import DocumentContext from '../contexts/DocumentContext'
 import { db } from '../db'
 import { Documents } from '../types/Documents'
 import { Document } from '../types/Document'
+import { useQuickEdit } from '../hooks/useQuickEdit'
+import QuickEdit from '../components/QuickEdit/QuickEdit'
 
 const ListDetailPagePane = styled(Pane)`
   h2.title {
@@ -67,6 +69,33 @@ export const ListDetailPage: React.FC<Props> = props => {
     }
   }, [props.isLoggedin])
 
+  const [
+    textEdit,
+    descriptionEdit,
+    isEditOpen,
+    setEdits,
+    handleTextEditChange,
+    handleDescriptionEditChange,
+    handleCancel,
+  ] = useQuickEdit({ text: '', description: '' })
+
+  const handleSubmit = useCallback((): void => {
+    dispatch({
+      type: 'CHANGE_DOCUMENT',
+      payload: { id: listId, title: textEdit, description: descriptionEdit },
+    })
+    setEdits({
+      isOpen: false,
+    })
+  }, [textEdit, descriptionEdit])
+
+  const handleClickEdit = (): void =>
+    setEdits({
+      text: props.documents[listId].title,
+      description: props.documents[listId].description,
+      isOpen: true,
+    })
+
   const getTodosByListId = useCallback(
     (listId: string) => {
       const todoIds = Object.keys(props.documents[listId].subdocs || {})
@@ -80,10 +109,24 @@ export const ListDetailPage: React.FC<Props> = props => {
     <div>loading..</div>
   ) : (
     <ListDetailPagePane>
-      <div className="information-pane">
-        <h2 className="title">{props.documents[listId].title}</h2>
-        <div className="description">{props.documents[listId].description}</div>
-      </div>
+      {isEditOpen ? (
+        <QuickEdit
+          text={textEdit}
+          description={descriptionEdit}
+          textPlaceholder="새 리스트"
+          descPlaceholder="설명(선택)"
+          onTextChange={handleTextEditChange}
+          onDescChange={handleDescriptionEditChange}
+          onSubmit={handleSubmit}
+          onCancel={handleCancel}
+        />
+      ) : (
+        <div>
+          <h2 className="title">{props.documents[listId].title}</h2>
+          <div className="description">{props.documents[listId].description}</div>
+          <Button onClick={handleClickEdit}>수정</Button>
+        </div>
+      )}
       <div className="list">
         <TodoList
           key={listId}

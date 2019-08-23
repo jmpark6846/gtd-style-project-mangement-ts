@@ -46,13 +46,15 @@ export const ProjectPage: React.FC<Props> = props => {
   }, [props.user.id])
 
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const {
+  const [
     textEdit,
     descriptionEdit,
+    _isEditOpen,
     setEdits,
     handleTextEditChange,
     handleDescriptionEditChange,
-  } = useQuickEdit({ text: '', description: '' })
+    _handleCancel,
+  ] = useQuickEdit({ text: '', description: '' })
 
   const handleAddProject = useCallback(() => {
     const postProject = async (): Promise<void> => {
