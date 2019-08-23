@@ -21,8 +21,8 @@ const putDocumentApi = async (state: Documents, id: string, changed: any): Promi
 const documentReducer = (state: Documents, action: Action): Documents => {
   const { type, payload } = action
   switch (type) {
-    case 'SET_DOCUMENTS': {
-      return payload
+    case 'UPDATE_DOCUMENTS': {
+      return { ...state, ...payload }
     }
     case 'ADD_DOCUMENT': {
       const addDocumentApi = async (): Promise<void> => {

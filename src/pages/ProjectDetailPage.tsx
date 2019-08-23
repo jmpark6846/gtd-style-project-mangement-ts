@@ -62,7 +62,7 @@ export const ProjectDetailPage: React.FC<Props> = props => {
           })
 
           docs[projectId] = document as Document
-          dispatch({ type: 'SET_DOCUMENTS', payload: docs })
+          dispatch({ type: 'UPDATE_DOCUMENTS', payload: docs })
           setIsLoading(false)
         } catch (error) {
           console.error('error fetching documents: ' + error)

@@ -7,6 +7,7 @@ import DocumentContext from '../../contexts/DocumentContext'
 export interface TodoListContainerProps {
   list: Document
   todos: Document[]
+  hideHeading?: boolean
 }
 
 const TodoListContainer: React.FC<TodoListContainerProps> = props => {

@@ -1,8 +1,8 @@
-import React, { useEffect, useContext, useState } from 'react'
+import React, { useEffect, useContext, useState, useCallback } from 'react'
 import styled from 'styled-components'
 import { Link, RouteComponentProps } from '@reach/router'
 import { Pane } from '../components/Common'
-import { TodoList } from '../components/Todo/TodoList'
+import TodoList from '../components/Todo/TodoListContainer'
 import { User } from '../types/User'
 import DocumentContext from '../contexts/DocumentContext'
 import { db } from '../db'
@@ -24,6 +24,7 @@ interface Props extends RouteComponentProps {
   listId?: string
   user: User
   isLoggedin: boolean
+  documents: Documents
 }
 
 export const ListDetailPage: React.FC<Props> = props => {
@@ -56,7 +57,7 @@ export const ListDetailPage: React.FC<Props> = props => {
           })
 
           docs[listId] = document as Document
-          dispatch({ type: 'SET_DOCUMENTS', payload: docs })
+          dispatch({ type: 'UPDATE_DOCUMENTS', payload: docs })
           setIsLoading(false)
         } catch (error) {
           console.error('error fetching documents: ' + error)
@@ -65,13 +66,32 @@ export const ListDetailPage: React.FC<Props> = props => {
       fetchDocument()
     }
   }, [props.isLoggedin])
-  return (
+
+  const getTodosByListId = useCallback(
+    (listId: string) => {
+      const todoIds = Object.keys(props.documents[listId].subdocs || {})
+      const todos = todoIds.map(todoId => props.documents[todoId])
+      return todos
+    },
+    [props.documents]
+  )
+
+  return isLoading ? (
+    <div>loading..</div>
+  ) : (
     <ListDetailPagePane>
       <div className="information-pane">
-        {/* <h2 className="title">{props.documents[listId].title}</h2>
-        <div className="description">{dummyDocs[listId].description}</div> */}
+        <h2 className="title">{props.documents[listId].title}</h2>
+        <div className="description">{props.documents[listId].description}</div>
       </div>
-      <div className="list"></div>
+      <div className="list">
+        <TodoList
+          key={listId}
+          hideHeading={true}
+          list={props.documents[listId]}
+          todos={getTodosByListId(listId)}
+        />
+      </div>
     </ListDetailPagePane>
   )
 }

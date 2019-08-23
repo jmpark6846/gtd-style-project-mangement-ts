@@ -55,11 +55,12 @@ const App: React.FC = () => {
             user={user}
             documents={documents}
           />
-          {/* <ListDetailPage
+          <ListDetailPage
             path="projects/:projectId/lists/:listId"
             isLoggedin={isLoggedIn}
             user={user}
-          /> */}
+            documents={documents}
+          />
         </Router>
       </DocumentContext.Provider>
     </div>

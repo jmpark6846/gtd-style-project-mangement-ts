@@ -36,7 +36,7 @@ export const TodoList: React.FC<TodoListProps> = props => {
 
   return (
     <TodoListPane>
-      {props.list.type === 1 && (
+      {!props.hideHeading && (
         <div className="info-pane">
           <h3 className="title">
             <Link to={`lists/${props.list.id}`}>{props.list.title}</Link>
