@@ -5,6 +5,7 @@ import DocumentContext from '../../contexts/DocumentContext'
 
 export interface TodoContainerProps {
   todo: Document
+  listId: string
 }
 
 const TodoContainer: React.FC<TodoContainerProps> = props => {
@@ -15,7 +16,12 @@ const TodoContainer: React.FC<TodoContainerProps> = props => {
       payload: { id: props.todo.id, title, description },
     })
   }
-
+  const handleDeleteTodo = (): void => {
+    dispatch({
+      type: 'DELETE_DOCUMENT',
+      payload: { id: props.todo.id, parent: props.listId },
+    })
+  }
   const handleCheckboxClick = useCallback(e => {
     e.stopPropagation()
   }, [])
@@ -33,6 +39,7 @@ const TodoContainer: React.FC<TodoContainerProps> = props => {
       onCheckboxClick={handleCheckboxClick}
       onChangeTodo={handleChangeTodo}
       onCheck={handleCheck}
+      onDelete={handleDeleteTodo}
     />
   )
 }

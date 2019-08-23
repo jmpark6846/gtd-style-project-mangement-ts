@@ -1,6 +1,5 @@
-import { Documents } from '../types/Documents'
 import { db } from '../db'
-import { Document } from '../types/Document'
+import { Documents } from '../types/Documents'
 
 export interface Action {
   type: string
@@ -35,7 +34,7 @@ const documentReducer = (state: Documents, action: Action): Documents => {
           await db
             .collection('documents')
             .doc(payload.parent)
-            .update({ subdocs: { ...state[payload.parent].subdocs, [payload.id]: true } })
+            .update({ subdocs: [...state[payload.parent].subdocs, payload.id] })
         } catch (error) {
           console.error('error adding document: ' + error)
         }
@@ -45,10 +44,7 @@ const documentReducer = (state: Documents, action: Action): Documents => {
         ...state,
         [payload.parent]: {
           ...state[payload.parent],
-          subdocs: {
-            ...state[payload.parent].subdocs,
-            [payload.id]: true,
-          },
+          subdocs: [...state[payload.parent].subdocs, payload.id],
         },
         [payload.id]: payload.document,
       }
@@ -63,6 +59,27 @@ const documentReducer = (state: Documents, action: Action): Documents => {
           ...changed,
         },
       }
+    }
+    case 'DELETE_DOCUMENT': {
+      const newState = { ...state }
+      const parentDoc = { ...state[payload.parent] }
+      const deleteDocumentApi = async (): Promise<void> => {
+        await db
+          .collection('documents')
+          .doc(parentDoc.id)
+          .update({ subdocs: parentDoc.subdocs.filter(id => id !== payload.id) })
+        await db
+          .collection('documents')
+          .doc(payload.id)
+          .delete()
+      }
+      deleteDocumentApi()
+      newState[parentDoc.id] = {
+        ...newState[parentDoc.id],
+        subdocs: newState[parentDoc.id].subdocs.filter(id => id !== payload.id),
+      }
+      delete newState[payload.id]
+      return newState
     }
     case 'CHECK_TODO': {
       const changed = { done: !state[payload.id].done }

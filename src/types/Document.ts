@@ -6,7 +6,5 @@ export interface Document {
   user: string
   done: boolean
   projectId: string | null
-  subdocs?: {
-    [docId: string]: boolean
-  }
+  subdocs: string[]
 }

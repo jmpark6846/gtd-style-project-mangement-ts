@@ -1,16 +1,17 @@
-import { RouteComponentProps } from '@reach/router'
-import React, { useCallback, useEffect, useState, useContext } from 'react'
+import { navigate, RouteComponentProps } from '@reach/router'
+import React, { useCallback, useContext, useEffect, useState } from 'react'
 import shortid from 'short-id'
 import styled from 'styled-components'
 import { Button, Pane } from '../components/Common'
 import QuickEdit from '../components/QuickEdit/QuickEdit'
 import TodoList from '../components/Todo/TodoListContainer'
-import { db } from '../db'
-import { useQuickEdit } from '../hooks/useQuickEdit'
 import DocumentContext from '../contexts/DocumentContext'
-import { User } from '../types/User'
-import { Documents } from '../types/Documents'
+import { db } from '../db'
+import useAuth from '../hooks/useAuth'
+import { useQuickEdit } from '../hooks/useQuickEdit'
+import { AuthStatus } from '../types/AuthStatus'
 import { Document } from '../types/Document'
+import { Documents } from '../types/Documents'
 
 const ProjectDetailPagePane = styled(Pane)`
   .information-pane {
@@ -28,29 +29,30 @@ const ProjectDetailPagePane = styled(Pane)`
 
 interface Props extends RouteComponentProps {
   projectId?: string
-  user: User
-  isLoggedin: boolean
   documents: Documents
 }
 
 export const ProjectDetailPage: React.FC<Props> = props => {
+  const [user, status] = useAuth()
+  if (status === AuthStatus.unauthenticated) navigate('/')
+
   const { dispatch } = useContext(DocumentContext)
   const [isLoading, setIsLoading] = useState(true)
   const projectId = props.projectId!
   useEffect(() => {
-    if (props.isLoggedin) {
+    if (status === AuthStatus.authenticated) {
       const fetchDocument = async (): Promise<void> => {
         try {
           const document = await db
             .collection('documents')
-            .where('user', '==', props.user.id)
+            .where('user', '==', user.id)
             .where('id', '==', projectId)
             .get()
             .then(snapshot => (snapshot.empty ? {} : snapshot.docs[0].data()))
 
           const subdocsSnapshot = await db
             .collection('documents')
-            .where('user', '==', props.user.id)
+            .where('user', '==', user.id)
             .where('projectId', '==', projectId)
             .where('type', '>', 0)
             .get()
@@ -70,7 +72,7 @@ export const ProjectDetailPage: React.FC<Props> = props => {
       }
       fetchDocument()
     }
-  }, [props.isLoggedin, props.user.id])
+  }, [status])
 
   const [
     textEditProject,
@@ -116,23 +118,23 @@ export const ProjectDetailPage: React.FC<Props> = props => {
       title: textEdit,
       description: descriptionEdit,
       type: 1,
-      user: props.user.id,
+      user: user.id,
       projectId,
       done: false,
-      subdocs: {},
+      subdocs: [],
     }
     dispatch({
       type: 'ADD_DOCUMENT',
       payload: { parent: projectId, id: listId, document: newList },
     })
     setEdits({ text: '', description: '' })
-  }, [props.user.id, projectId, textEdit, descriptionEdit])
+  }, [user.id, projectId, textEdit, descriptionEdit])
 
   const handleAddClick = useCallback((): void => setEdits({ isOpen: true }), [])
 
   const getTodosByListId = useCallback(
     (listId: string) => {
-      const todoIds = Object.keys(props.documents[listId].subdocs || {})
+      const todoIds = props.documents[listId].subdocs
       const todos = todoIds.map(todoId => props.documents[todoId])
       return todos
     },
@@ -164,7 +166,7 @@ export const ProjectDetailPage: React.FC<Props> = props => {
         )}
       </div>
       <div className="list">
-        {Object.keys(props.documents[projectId].subdocs || {}).map(listId => (
+        {props.documents[projectId].subdocs.map(listId => (
           <TodoList key={listId} list={props.documents[listId]} todos={getTodosByListId(listId)} />
         ))}
         {isEditOpen ? (

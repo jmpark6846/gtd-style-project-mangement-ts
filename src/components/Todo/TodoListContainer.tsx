@@ -23,7 +23,7 @@ const TodoListContainer: React.FC<TodoListContainerProps> = props => {
         user: props.list.user,
         projectId: props.list.projectId,
         done: false,
-        subdocs: {},
+        subdocs: [],
       }
       dispatch({
         type: 'ADD_DOCUMENT',

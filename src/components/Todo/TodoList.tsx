@@ -1,12 +1,11 @@
-import React, { useContext } from 'react'
-import styled from 'styled-components'
 import { Link } from '@reach/router'
+import React from 'react'
+import styled from 'styled-components'
 import { useQuickEdit } from '../../hooks/useQuickEdit'
 import { Button } from '../Common'
 import QuickEdit from '../QuickEdit/QuickEdit'
 import Todo from './TodoContainer'
 import { TodoListContainerProps } from './TodoListContainer'
-import DocumentContext from '../../contexts/DocumentContext'
 
 const TodoListPane = styled.div`
   margin-bottom: 30px;
@@ -23,7 +22,7 @@ interface TodoListProps extends TodoListContainerProps {
   onAddTodo(text: string, description: string): void
 }
 
-export const TodoList: React.FC<TodoListProps> = props => {
+export const TodoList: React.FC<TodoListProps> = ({ hideHeading, list, onAddTodo, todos }) => {
   const [
     textEdit,
     descriptionEdit,
@@ -36,16 +35,16 @@ export const TodoList: React.FC<TodoListProps> = props => {
 
   return (
     <TodoListPane>
-      {!props.hideHeading && (
+      {!hideHeading && (
         <div className="info-pane">
           <h3 className="title">
-            <Link to={`lists/${props.list.id}`}>{props.list.title}</Link>
+            <Link to={`lists/${list.id}`}>{list.title}</Link>
           </h3>
-          <div className="description">{props.list.description}</div>
+          <div className="description">{list.description}</div>
         </div>
       )}
-      {props.todos.map(todo => (
-        <Todo key={todo.id} todo={todo} />
+      {todos.map(todo => (
+        <Todo key={todo.id} listId={list.id} todo={todo} />
       ))}
       {isEditOpen ? (
         <QuickEdit
@@ -55,7 +54,7 @@ export const TodoList: React.FC<TodoListProps> = props => {
           descPlaceholder="설명(선택)"
           onTextChange={handleTextEditChange}
           onDescChange={handleDescriptionEditChange}
-          onSubmit={(): void => props.onAddTodo(textEdit, descriptionEdit)}
+          onSubmit={(): void => onAddTodo(textEdit, descriptionEdit)}
           onCancel={handleCancel}
         />
       ) : (

@@ -11,6 +11,7 @@ interface Props {
   onDescChange(e: ContentEditableEvent): void
   onSubmit(): void
   onCancel(): void
+  onDelete?(): void
 }
 
 const QuickEdit: React.FC<Props> = ({
@@ -22,6 +23,7 @@ const QuickEdit: React.FC<Props> = ({
   onDescChange,
   onSubmit,
   onCancel,
+  onDelete,
 }) => {
   return (
     <Box>
@@ -32,12 +34,21 @@ const QuickEdit: React.FC<Props> = ({
         onChange={onDescChange}
       />
       <div className="control-pane">
-        <Button small onClick={onSubmit}>
-          추가하기
-        </Button>
-        <Button small onClick={onCancel}>
-          취소
-        </Button>
+        <div>
+          <Button small onClick={onSubmit}>
+            추가하기
+          </Button>
+          <Button small onClick={onCancel}>
+            취소
+          </Button>
+        </div>
+        {onDelete != null && (
+          <div>
+            <Button small onClick={onDelete}>
+              삭제
+            </Button>
+          </div>
+        )}
       </div>
     </Box>
   )

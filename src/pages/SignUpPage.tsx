@@ -67,8 +67,8 @@ export const SignUpPage: React.FC<Props> = () => {
         <div className="message"></div>
       </div>
       <div className="control-pane">
-        <Button>취소</Button>
-        <Button onClick={handleSubmit}>회원가입</Button>
+        <Button onClick={useCallback(() => navigate('/'), [])}>취소</Button>
+        <Button onClick={handleSubmit}>가입</Button>
       </div>
     </SignUpPagePane>
   )

@@ -1,15 +1,16 @@
-import React, { useEffect, useContext, useState, useCallback } from 'react'
+import { RouteComponentProps, navigate } from '@reach/router'
+import React, { useCallback, useContext, useEffect, useState } from 'react'
 import styled from 'styled-components'
-import { Link, RouteComponentProps } from '@reach/router'
-import { Pane, Button } from '../components/Common'
+import { Button, Pane } from '../components/Common'
+import QuickEdit from '../components/QuickEdit/QuickEdit'
 import TodoList from '../components/Todo/TodoListContainer'
-import { User } from '../types/User'
 import DocumentContext from '../contexts/DocumentContext'
 import { db } from '../db'
-import { Documents } from '../types/Documents'
-import { Document } from '../types/Document'
+import useAuth from '../hooks/useAuth'
 import { useQuickEdit } from '../hooks/useQuickEdit'
-import QuickEdit from '../components/QuickEdit/QuickEdit'
+import { AuthStatus } from '../types/AuthStatus'
+import { Document } from '../types/Document'
+import { Documents } from '../types/Documents'
 
 const ListDetailPagePane = styled(Pane)`
   h2.title {
@@ -24,30 +25,31 @@ const ListDetailPagePane = styled(Pane)`
 interface Props extends RouteComponentProps {
   projectId?: string
   listId?: string
-  user: User
-  isLoggedin: boolean
   documents: Documents
 }
 
 export const ListDetailPage: React.FC<Props> = props => {
+  const [user, status] = useAuth()
+  if (status === AuthStatus.unauthenticated) navigate('/')
+
   const { dispatch } = useContext(DocumentContext)
   const [isLoading, setIsLoading] = useState(true)
   const listId = props.listId!
   const projectId = props.projectId!
   useEffect(() => {
-    if (props.isLoggedin) {
+    if (status === AuthStatus.authenticated) {
       const fetchDocument = async (): Promise<void> => {
         try {
           const document = await db
             .collection('documents')
-            .where('user', '==', props.user.id)
+            .where('user', '==', user.id)
             .where('id', '==', listId)
             .get()
             .then(snapshot => (snapshot.empty ? {} : snapshot.docs[0].data()))
 
           const subdocsSnapshot = await db
             .collection('documents')
-            .where('user', '==', props.user.id)
+            .where('user', '==', user.id)
             .where('projectId', '==', projectId)
             .where('type', '>', 1)
             .get()
@@ -67,7 +69,7 @@ export const ListDetailPage: React.FC<Props> = props => {
       }
       fetchDocument()
     }
-  }, [props.isLoggedin])
+  }, [status])
 
   const [
     textEdit,
@@ -98,7 +100,7 @@ export const ListDetailPage: React.FC<Props> = props => {
 
   const getTodosByListId = useCallback(
     (listId: string) => {
-      const todoIds = Object.keys(props.documents[listId].subdocs || {})
+      const todoIds = props.documents[listId].subdocs
       const todos = todoIds.map(todoId => props.documents[todoId])
       return todos
     },

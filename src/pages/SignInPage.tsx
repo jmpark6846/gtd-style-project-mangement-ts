@@ -56,7 +56,7 @@ export const SignInPage: React.FC<Props> = () => {
       </div>
       <div className="message">{message}</div>
       <div className="control-pane">
-        <Button>회원가입</Button>
+        <Button onClick={useCallback(() => navigate('/signup'), [])}>회원가입</Button>
         <Button onClick={handleSignin}>로그인</Button>
       </div>
     </SignInPagePane>
