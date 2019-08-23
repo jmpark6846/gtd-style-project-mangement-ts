@@ -2,7 +2,7 @@ import { Router } from '@reach/router'
 import React, { useEffect, useReducer, useState } from 'react'
 import './App.css'
 import DocumentContext from './contexts/DocumentContext'
-import { db } from './db'
+import { db, firebaseAuth } from './db'
 import { ListDetailPage } from './pages/ListDetailPage'
 import { ProjectDetailPage } from './pages/ProjectDetailPage'
 import { ProjectPage } from './pages/ProjectPage'
@@ -24,23 +24,27 @@ const App: React.FC = () => {
   const [user, setUser] = useState(initalUserState)
 
   useEffect(() => {
-    const fetchUser = async (): Promise<void> => {
-      try {
-        const user = await db
-          .collection('users')
-          .doc('5XO2bZ7GCeJMueptWc5l')
-          .get()
-          .then(res => res.data())
+    const firebaseUnsubscribe = firebaseAuth.onAuthStateChanged(async googleAuth => {
+      if (googleAuth !== null) {
+        let user = null
 
-        if (user != null) {
-          setUser(user as User)
-          setIsLoggedIn(true)
+        try {
+          const userDoc = await db
+            .collection('users')
+            .doc(googleAuth.uid)
+            .get()
+
+          if (userDoc.exists) {
+            user = userDoc.data() as User
+            setUser(user)
+            setIsLoggedIn(true)
+          }
+        } catch (error) {
+          console.log('error getting user: ' + error)
         }
-      } catch (error) {
-        console.log('error fetching user: ' + error)
       }
-    }
-    fetchUser()
+    })
+    return firebaseUnsubscribe
   }, [])
   console.log(documents, user)
 
