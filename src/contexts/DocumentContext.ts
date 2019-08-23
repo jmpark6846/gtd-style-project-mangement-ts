@@ -1,12 +1,11 @@
 import React from 'react'
-import { ContextProps } from '../types/ContextProps'
 import { Documents } from '../types/Documents'
 
-interface DocumentContextProps extends ContextProps {
-  documents: Documents
+export interface ContextProps {
+  dispatch(props: { type: string; payload: any }): void
 }
-const DocumentContext = React.createContext<DocumentContextProps>({
-  documents: {},
+
+const DocumentContext = React.createContext<ContextProps>({
   dispatch: () => {},
 })
 

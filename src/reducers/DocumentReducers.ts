@@ -1,5 +1,6 @@
 import { Documents } from '../types/Documents'
 import { db } from '../db'
+import { Document } from '../types/Document'
 
 export interface Action {
   type: string

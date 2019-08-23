@@ -24,7 +24,6 @@ interface TodoListProps extends TodoListContainerProps {
 }
 
 export const TodoList: React.FC<TodoListProps> = props => {
-  const { documents } = useContext(DocumentContext)
   const {
     textEdit,
     descriptionEdit,
@@ -40,13 +39,13 @@ export const TodoList: React.FC<TodoListProps> = props => {
       {props.list.type === 1 && (
         <div className="info-pane">
           <h3 className="title">
-            <Link to={`/${props.list.id}`}>{props.list.title}</Link>
+            <Link to={`lists/${props.list.id}`}>{props.list.title}</Link>
           </h3>
           <div className="description">{props.list.description}</div>
         </div>
       )}
-      {Object.keys(props.list.subdocs || {}).map(todoId => (
-        <Todo key={todoId} todo={documents[todoId]} />
+      {props.todos.map(todo => (
+        <Todo key={todo.id} todo={todo} />
       ))}
       {isEditOpen ? (
         <QuickEdit

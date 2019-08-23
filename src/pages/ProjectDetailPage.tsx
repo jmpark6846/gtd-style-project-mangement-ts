@@ -30,25 +30,25 @@ interface Props extends RouteComponentProps {
   projectId?: string
   user: User
   isLoggedin: boolean
+  documents: Documents
 }
 
 export const ProjectDetailPage: React.FC<Props> = props => {
-  const { documents, dispatch } = useContext(DocumentContext)
+  const { dispatch } = useContext(DocumentContext)
   const [isLoading, setIsLoading] = useState(true)
   const projectId = props.projectId!
-
   useEffect(() => {
     if (props.isLoggedin) {
-      const fetchProject = async (): Promise<void> => {
+      const fetchDocument = async (): Promise<void> => {
         try {
-          const project = await db
+          const document = await db
             .collection('documents')
             .where('user', '==', props.user.id)
             .where('id', '==', projectId)
             .get()
             .then(snapshot => (snapshot.empty ? {} : snapshot.docs[0].data()))
 
-          const documentSnapshot = await db
+          const subdocsSnapshot = await db
             .collection('documents')
             .where('user', '==', props.user.id)
             .where('projectId', '==', projectId)
@@ -56,20 +56,19 @@ export const ProjectDetailPage: React.FC<Props> = props => {
             .get()
 
           const docs: Documents = {}
-          documentSnapshot.forEach(doc => {
+          subdocsSnapshot.forEach(doc => {
             const _doc = doc.data() as Document
             docs[_doc.id] = _doc
           })
 
-          docs[project.id] = project as Document
+          docs[projectId] = document as Document
           dispatch({ type: 'SET_DOCUMENTS', payload: docs })
           setIsLoading(false)
         } catch (error) {
           console.error('error fetching documents: ' + error)
         }
       }
-
-      fetchProject()
+      fetchDocument()
     }
   }, [props.isLoggedin, props.user.id])
 
@@ -124,17 +123,27 @@ export const ProjectDetailPage: React.FC<Props> = props => {
   )
 
   const handleAddClick = useCallback((): void => setEdits({ isOpen: true }), [])
+
+  const getTodosByListId = useCallback(
+    (listId: string) => {
+      const todoIds = Object.keys(props.documents[listId].subdocs || {})
+      const todos = todoIds.map(todoId => props.documents[todoId])
+      return todos
+    },
+    [props.documents]
+  )
+
   return isLoading ? (
     <div>loading..</div>
   ) : (
     <ProjectDetailPagePane>
       <div className="information-pane">
-        <h2 className="title">{documents[projectId].title}</h2>
-        <div className="description">{documents[projectId].description}</div>
+        <h2 className="title">{props.documents[projectId].title}</h2>
+        <div className="description">{props.documents[projectId].description}</div>
       </div>
       <div className="list">
-        {Object.keys(documents[projectId].subdocs || {}).map(listId => (
-          <TodoList key={listId} list={documents[listId]} />
+        {Object.keys(props.documents[projectId].subdocs || {}).map(listId => (
+          <TodoList key={listId} list={props.documents[listId]} todos={getTodosByListId(listId)} />
         ))}
         {isEditOpen ? (
           <QuickEdit

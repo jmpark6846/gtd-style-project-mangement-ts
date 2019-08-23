@@ -6,6 +6,7 @@ import DocumentContext from '../../contexts/DocumentContext'
 
 export interface TodoListContainerProps {
   list: Document
+  todos: Document[]
 }
 
 const TodoListContainer: React.FC<TodoListContainerProps> = props => {

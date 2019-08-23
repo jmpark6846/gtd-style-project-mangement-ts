@@ -45,12 +45,21 @@ const App: React.FC = () => {
 
   return (
     <div className="App">
-      <DocumentContext.Provider value={{ documents, dispatch }}>
+      <DocumentContext.Provider value={{ dispatch }}>
         <Router>
           <SignInPage path="/" />
           <ProjectPage path="projects" user={user} />
-          <ProjectDetailPage path="projects/:projectId" isLoggedin={isLoggedIn} user={user} />
-          {/* <ListDetailPage path="projects/:projectId/lists/:listId" /> */}
+          <ProjectDetailPage
+            path="projects/:projectId"
+            isLoggedin={isLoggedIn}
+            user={user}
+            documents={documents}
+          />
+          {/* <ListDetailPage
+            path="projects/:projectId/lists/:listId"
+            isLoggedin={isLoggedIn}
+            user={user}
+          /> */}
         </Router>
       </DocumentContext.Provider>
     </div>
