@@ -48,10 +48,9 @@ export const ProjectPage: React.FC<Props> = props => {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const {
     textEdit,
-    setTextEdit,
-    handleTextEditChange,
     descriptionEdit,
-    setDescriptionEdit,
+    setEdits,
+    handleTextEditChange,
     handleDescriptionEditChange,
   } = useQuickEdit({ text: '', description: '' })
 
@@ -85,17 +84,8 @@ export const ProjectPage: React.FC<Props> = props => {
 
     postProject()
     setIsDialogOpen(false)
-    setTextEdit('')
-    setDescriptionEdit('')
-  }, [
-    projectList,
-    setDescriptionEdit,
-    setIsDialogOpen,
-    setTextEdit,
-    textEdit,
-    descriptionEdit,
-    props.user.id,
-  ])
+    setEdits({ text: '', description: '' })
+  }, [projectList, textEdit, descriptionEdit, props.user.id])
   return (
     <div>
       <Pane marginBottom="15px">

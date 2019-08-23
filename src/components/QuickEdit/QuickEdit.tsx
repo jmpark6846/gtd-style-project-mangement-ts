@@ -4,7 +4,7 @@ import ContentEditable, { ContentEditableEvent } from 'react-contenteditable'
 
 interface Props {
   text: string
-  description: string
+  description?: string
   textPlaceholder?: string
   descPlaceholder?: string
   onTextChange(e: React.ChangeEvent<HTMLInputElement>): void
@@ -26,7 +26,11 @@ const QuickEdit: React.FC<Props> = ({
   return (
     <Box>
       <Input placeholder={textPlaceholder} onChange={onTextChange} value={text} />
-      <ContentEditable html={description} placeholder={descPlaceholder} onChange={onDescChange} />
+      <ContentEditable
+        html={description || ''}
+        placeholder={descPlaceholder}
+        onChange={onDescChange}
+      />
       <div className="control-pane">
         <Button small onClick={onSubmit}>
           추가하기

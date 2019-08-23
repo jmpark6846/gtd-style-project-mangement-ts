@@ -6,6 +6,17 @@ export interface Action {
   payload: any
 }
 
+const putDocumentApi = async (state: Documents, id: string, changed: any): Promise<void> => {
+  try {
+    await db
+      .collection('documents')
+      .doc(id)
+      .update(changed)
+  } catch (error) {
+    console.error('error changing document: ' + error)
+  }
+}
+
 const documentReducer = (state: Documents, action: Action): Documents => {
   const { type, payload } = action
   switch (type) {
@@ -13,7 +24,7 @@ const documentReducer = (state: Documents, action: Action): Documents => {
       return payload
     }
     case 'ADD_DOCUMENT': {
-      const addProjectApi = async (): Promise<void> => {
+      const addDocumentApi = async (): Promise<void> => {
         try {
           await db
             .collection('documents')
@@ -25,10 +36,10 @@ const documentReducer = (state: Documents, action: Action): Documents => {
             .doc(payload.parent)
             .update({ subdocs: { ...state[payload.parent].subdocs, [payload.id]: true } })
         } catch (error) {
-          console.error('error adding project: ' + error)
+          console.error('error adding document: ' + error)
         }
       }
-      addProjectApi()
+      addDocumentApi()
       return {
         ...state,
         [payload.parent]: {
@@ -39,6 +50,28 @@ const documentReducer = (state: Documents, action: Action): Documents => {
           },
         },
         [payload.id]: payload.document,
+      }
+    }
+    case 'CHANGE_DOCUMENT': {
+      const { id, ...changed } = payload
+      putDocumentApi(state, id, changed)
+      return {
+        ...state,
+        [id]: {
+          ...state[id],
+          ...changed,
+        },
+      }
+    }
+    case 'CHECK_TODO': {
+      const changed = { done: !state[payload.id].done }
+      putDocumentApi(state, payload.id, changed)
+      return {
+        ...state,
+        [payload.id]: {
+          ...state[payload.id],
+          ...changed,
+        },
       }
     }
     default:

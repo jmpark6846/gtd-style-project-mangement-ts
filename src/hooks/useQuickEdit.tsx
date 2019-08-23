@@ -4,29 +4,33 @@ import { ContentEditableEvent } from 'react-contenteditable'
 
 interface Props {
   text: string
-  description: string
+  description?: string
 }
 
 interface State {
   textEdit: string
-  setTextEdit: React.Dispatch<React.SetStateAction<string>>
-  handleTextEditChange: (e: React.ChangeEvent<HTMLInputElement> | ContentEditableEvent) => void
   descriptionEdit: string
-  setDescriptionEdit: React.Dispatch<React.SetStateAction<string>>
+  isEditOpen: boolean
+  setEdits(props: { text?: string; description?: string; isOpen?: boolean }): void
+  handleTextEditChange: (e: React.ChangeEvent<HTMLInputElement> | ContentEditableEvent) => void
+  handleCancel(): void
   handleDescriptionEditChange: (
     e: React.ChangeEvent<HTMLInputElement> | ContentEditableEvent
   ) => void
-  isEditOpen: boolean
-  setIsEditOpen: React.Dispatch<React.SetStateAction<boolean>>
-  handleCancel(): void
 }
 
 export const useQuickEdit = (props: Props): State => {
-  const [textEdit, setTextEdit, handleTextEditChange] = useInputState(props.text || '')
+  const [textEdit, setTextEdit, handleTextEditChange] = useInputState(props.text)
   const [descriptionEdit, setDescriptionEdit, handleDescriptionEditChange] = useInputState(
     props.description || ''
   )
   const [isEditOpen, setIsEditOpen] = useState(false)
+  const setEdits = (props: { text: string; description: string; isOpen: boolean }): void => {
+    const { text, description, isOpen } = props
+    if (text != null) setTextEdit(text)
+    if (description != null) setDescriptionEdit(description)
+    if (isOpen != null) setIsEditOpen(isOpen)
+  }
   const handleCancel = (): void => {
     setIsEditOpen(false)
     setTextEdit('')
@@ -34,13 +38,11 @@ export const useQuickEdit = (props: Props): State => {
   }
   return {
     textEdit,
-    setTextEdit,
-    handleTextEditChange,
     descriptionEdit,
-    setDescriptionEdit,
-    handleDescriptionEditChange,
     isEditOpen,
-    setIsEditOpen,
+    setEdits,
+    handleTextEditChange,
+    handleDescriptionEditChange,
     handleCancel,
   }
 }

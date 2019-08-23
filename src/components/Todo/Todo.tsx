@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import styled from 'styled-components'
 import { TodoContainerProps } from './TodoContainer'
 import QuickEdit from '../QuickEdit/QuickEdit'
@@ -21,19 +21,26 @@ interface TodoProps {
   todo: Document
   onCheckboxClick(e: any): any
   onChangeTodo(title: string, description: string): void
+  onCheck(): void
 }
 
 export const Todo: React.FC<TodoProps> = props => {
-  const { todo, onCheckboxClick, onChangeTodo } = props
   const {
     textEdit,
-    handleTextEditChange,
     descriptionEdit,
-    handleDescriptionEditChange,
     isEditOpen,
-    setIsEditOpen,
-    handleCancel,
-  } = useQuickEdit({ text: '', description: '' })
+    setEdits,
+    handleTextEditChange,
+    handleDescriptionEditChange,
+  } = useQuickEdit({ text: props.todo.title, description: props.todo.description })
+
+  const handleSubmit = useCallback(() => {
+    props.onChangeTodo(textEdit, descriptionEdit)
+    setEdits({ isOpen: false })
+  }, [textEdit, descriptionEdit])
+
+  const handleCancel = (): void =>
+    setEdits({ text: props.todo.title, description: props.todo.description, isOpen: false })
 
   return isEditOpen ? (
     <QuickEdit
@@ -43,13 +50,18 @@ export const Todo: React.FC<TodoProps> = props => {
       descPlaceholder="설명(선택)"
       onTextChange={handleTextEditChange}
       onDescChange={handleDescriptionEditChange}
-      onSubmit={(): void => onChangeTodo(textEdit, descriptionEdit)}
+      onSubmit={handleSubmit}
       onCancel={handleCancel}
     />
   ) : (
-    <TodoPane onClick={(): void => setIsEditOpen(true)}>
-      <input type="checkbox" checked={todo.done} onClick={onCheckboxClick} />
-      {todo.title}
+    <TodoPane onClick={(): void => setEdits({ isOpen: true })}>
+      <input
+        type="checkbox"
+        checked={props.todo.done}
+        onClick={props.onCheckboxClick}
+        onChange={props.onCheck}
+      />
+      {props.todo.title}
     </TodoPane>
   )
 }

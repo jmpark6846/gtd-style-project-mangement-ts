@@ -27,11 +27,11 @@ export const TodoList: React.FC<TodoListProps> = props => {
   const { documents } = useContext(DocumentContext)
   const {
     textEdit,
-    handleTextEditChange,
     descriptionEdit,
-    handleDescriptionEditChange,
     isEditOpen,
-    setIsEditOpen,
+    setEdits,
+    handleTextEditChange,
+    handleDescriptionEditChange,
     handleCancel,
   } = useQuickEdit({ text: '', description: '' })
 
@@ -60,7 +60,7 @@ export const TodoList: React.FC<TodoListProps> = props => {
           onCancel={handleCancel}
         />
       ) : (
-        <Button small onClick={(): void => setIsEditOpen(true)}>
+        <Button small onClick={(): void => setEdits({ isOpen: true })}>
           추가하기
         </Button>
       )}

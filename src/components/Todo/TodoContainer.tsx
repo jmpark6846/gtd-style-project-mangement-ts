@@ -9,22 +9,31 @@ export interface TodoContainerProps {
 
 const TodoContainer: React.FC<TodoContainerProps> = props => {
   const { dispatch } = useContext(DocumentContext)
-  const handleChangeTodo = useCallback((title: string, description: string) => {
+  const handleChangeTodo = (title: string, description: string): void => {
     dispatch({
       type: 'CHANGE_DOCUMENT',
       payload: { id: props.todo.id, title, description },
     })
-  }, [])
+  }
 
   const handleCheckboxClick = useCallback(e => {
     e.stopPropagation()
+  }, [])
+
+  const handleCheck = (): void => {
     dispatch({
       type: 'CHECK_TODO',
       payload: { id: props.todo.id },
     })
-  }, [])
+  }
+
   return (
-    <Todo todo={props.todo} onCheckboxClick={handleCheckboxClick} onChangeTodo={handleChangeTodo} />
+    <Todo
+      todo={props.todo}
+      onCheckboxClick={handleCheckboxClick}
+      onChangeTodo={handleChangeTodo}
+      onCheck={handleCheck}
+    />
   )
 }
 

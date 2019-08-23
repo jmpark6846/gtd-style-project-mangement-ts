@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useState, useContext } from 'react'
 import shortid from 'short-id'
 import styled from 'styled-components'
 import { Button, Pane } from '../components/Common'
-import QuickEdit from '../components/QuickEdit/QuickEditorContainer'
+import QuickEdit from '../components/QuickEdit/QuickEdit'
 import TodoList from '../components/Todo/TodoListContainer'
 import { db } from '../db'
 import { useQuickEdit } from '../hooks/useQuickEdit'
@@ -75,13 +75,11 @@ export const ProjectDetailPage: React.FC<Props> = props => {
 
   const {
     textEdit,
-    setTextEdit,
-    handleTextEditChange,
     descriptionEdit,
-    setDescriptionEdit,
-    handleDescriptionEditChange,
     isEditOpen,
-    setIsEditOpen,
+    setEdits,
+    handleTextEditChange,
+    handleDescriptionEditChange,
     handleCancel,
   } = useQuickEdit({ text: '', description: '' })
 
@@ -101,8 +99,7 @@ export const ProjectDetailPage: React.FC<Props> = props => {
       type: 'ADD_DOCUMENT',
       payload: { parent: projectId, id: listId, document: newList },
     })
-    setTextEdit('')
-    setDescriptionEdit('')
+    setEdits({ text: '', description: '' })
   }, [props.user.id, projectId, textEdit, descriptionEdit])
 
   const handleAddTodo = useCallback(
@@ -126,7 +123,7 @@ export const ProjectDetailPage: React.FC<Props> = props => {
     [props.user.id, projectId]
   )
 
-  const handleAddClick = useCallback((): void => setIsEditOpen(true), [])
+  const handleAddClick = useCallback((): void => setEdits({ isOpen: true }), [])
   return isLoading ? (
     <div>loading..</div>
   ) : (
