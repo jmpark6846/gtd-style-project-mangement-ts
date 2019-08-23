@@ -24,19 +24,14 @@ const ProjectBox = styled(Box)`
 
 export const ProjectPage: React.FC<Props> = props => {
   const [projectList, setProjectList] = useState({})
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const {
-    textEdit,
-    setTextEdit,
-    handleTextEditChange,
-    descriptionEdit,
-    setDescriptionEdit,
-    handleDescriptionEditChange,
-  } = useQuickEdit({ text: '', description: '' })
   useEffect(() => {
     const fetchProjects = async (): Promise<void> => {
       try {
-        const snapshot = await db.collection('documents').get()
+        const snapshot = await db
+          .collection('documents')
+          .where('user', '==', props.user.id)
+          .where('type', '==', 0)
+          .get()
         const projects: Documents = {}
         snapshot.forEach(doc => {
           const _doc = doc.data() as Document
@@ -48,7 +43,17 @@ export const ProjectPage: React.FC<Props> = props => {
       }
     }
     fetchProjects()
-  }, [])
+  }, [props.user.id])
+
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const {
+    textEdit,
+    setTextEdit,
+    handleTextEditChange,
+    descriptionEdit,
+    setDescriptionEdit,
+    handleDescriptionEditChange,
+  } = useQuickEdit({ text: '', description: '' })
 
   const handleAddProject = useCallback(() => {
     const postProject = async (): Promise<void> => {

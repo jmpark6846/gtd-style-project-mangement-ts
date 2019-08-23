@@ -125,6 +125,7 @@ export const ProjectDetailPage: React.FC<Props> = props => {
     },
     [props.user.id, projectId]
   )
+
   const handleAddClick = useCallback((): void => setIsEditOpen(true), [])
   return isLoading ? (
     <div>loading..</div>
@@ -136,7 +137,7 @@ export const ProjectDetailPage: React.FC<Props> = props => {
       </div>
       <div className="list">
         {Object.keys(documents[projectId].subdocs || {}).map(listId => (
-          <TodoList key={listId} list={documents[listId]} onAddTodo={handleAddTodo} />
+          <TodoList key={listId} list={documents[listId]} />
         ))}
         {isEditOpen ? (
           <QuickEdit

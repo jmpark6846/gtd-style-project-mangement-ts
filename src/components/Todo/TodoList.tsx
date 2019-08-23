@@ -19,11 +19,12 @@ const TodoListPane = styled.div`
   }
 `
 
-interface TodoListProps extends TodoListContainerProps {}
+interface TodoListProps extends TodoListContainerProps {
+  onAddTodo(text: string, description: string): void
+}
 
-export const TodoList: React.FC<TodoListProps> = ({ list, onAddTodo }) => {
-  const { documents, dispatch } = useContext(DocumentContext)
-
+export const TodoList: React.FC<TodoListProps> = props => {
+  const { documents } = useContext(DocumentContext)
   const {
     textEdit,
     handleTextEditChange,
@@ -36,16 +37,16 @@ export const TodoList: React.FC<TodoListProps> = ({ list, onAddTodo }) => {
 
   return (
     <TodoListPane>
-      {list.type === 1 && (
+      {props.list.type === 1 && (
         <div className="info-pane">
           <h3 className="title">
-            <Link to={`/${list.id}`}>{list.title}</Link>
+            <Link to={`/${props.list.id}`}>{props.list.title}</Link>
           </h3>
-          <div className="description">{list.description}</div>
+          <div className="description">{props.list.description}</div>
         </div>
       )}
-      {Object.keys(list.subdocs || {}).map(todoId => (
-        <Todo key={todoId} {...documents[todoId]} onChange={(): void => console.log(todoId)} />
+      {Object.keys(props.list.subdocs || {}).map(todoId => (
+        <Todo key={todoId} todo={documents[todoId]} />
       ))}
       {isEditOpen ? (
         <QuickEdit
@@ -55,7 +56,7 @@ export const TodoList: React.FC<TodoListProps> = ({ list, onAddTodo }) => {
           descPlaceholder="설명(선택)"
           onTextChange={handleTextEditChange}
           onDescChange={handleDescriptionEditChange}
-          onSubmit={(): void => onAddTodo(list.id, textEdit, descriptionEdit)}
+          onSubmit={(): void => props.onAddTodo(textEdit, descriptionEdit)}
           onCancel={handleCancel}
         />
       ) : (
