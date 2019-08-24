@@ -1,5 +1,5 @@
 import { Link, navigate, RouteComponentProps } from '@reach/router'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState, useContext } from 'react'
 import ContentEditable from 'react-contenteditable'
 import shortid from 'short-id'
 import styled from 'styled-components'
@@ -11,8 +11,11 @@ import { useQuickEdit } from '../hooks/useQuickEdit'
 import { AuthStatus } from '../types/AuthStatus'
 import { Document } from '../types/Document'
 import { Documents } from '../types/Documents'
+import DocumentContext from '../contexts/DocumentContext'
 
-interface Props extends RouteComponentProps {}
+interface Props extends RouteComponentProps {
+  documents: Documents
+}
 
 const ProjectBox = styled(Box)`
   padding: 0.5em 1em;
@@ -20,25 +23,15 @@ const ProjectBox = styled(Box)`
   border-radius: 1.5em;
 `
 
-const initialProjectState: Documents = {
-  aaa: {
-    id: 'aaa',
-    done: false,
-    projectId: '',
-    subdocs: [],
-    title: '',
-    type: 0,
-    user: '',
-    description: '',
-  },
-}
-
-export const ProjectPage: React.FC<Props> = props => {
+export const ProjectPage: React.FC<Props> = ({ documents, navigate }) => {
   const [user, status] = useAuth()
-  if (status === AuthStatus.unauthenticated) navigate('/')
+
+  useEffect(() => {
+    if (status === AuthStatus.unauthenticated) navigate!('/')
+  }, [])
 
   const [isLoading, setIsLoading] = useState(true)
-  const [projectList, setProjectList] = useState(initialProjectState)
+  const { dispatch } = useContext(DocumentContext)
   useEffect(() => {
     if (status === AuthStatus.authenticated) {
       const fetchProjects = async (): Promise<void> => {
@@ -53,7 +46,7 @@ export const ProjectPage: React.FC<Props> = props => {
             const _doc = doc.data() as Document
             projects[_doc.id] = _doc
           })
-          setProjectList(projects)
+          dispatch({ type: 'UPDATE_DOCUMENTS', payload: projects })
           setIsLoading(false)
         } catch (error) {
           console.error('error fetching documents: ' + error)
@@ -75,37 +68,24 @@ export const ProjectPage: React.FC<Props> = props => {
   ] = useQuickEdit({ text: '', description: '' })
 
   const handleAddProject = useCallback(() => {
-    const postProject = async (): Promise<void> => {
-      const projectId = shortid.generate()
-      const newProject: Document = {
-        id: projectId,
-        title: textEdit,
-        description: descriptionEdit,
-        done: false,
-        subdocs: [],
-        projectId: null,
-        type: 0,
-        user: user.id,
-      }
-      try {
-        await db
-          .collection('documents')
-          .doc(projectId)
-          .set(newProject)
-      } catch (error) {
-        console.log('error adding project: ' + error)
-      }
-
-      setProjectList({
-        ...projectList,
-        [projectId]: newProject,
-      })
+    const projectId = shortid.generate()
+    const newProject: Document = {
+      id: projectId,
+      title: textEdit,
+      description: descriptionEdit,
+      done: false,
+      subdocs: [],
+      projectId: null,
+      type: 0,
+      user: user.id,
     }
-
-    postProject()
+    dispatch({
+      type: 'ADD_DOCUMENT',
+      payload: { parent: null, id: projectId, document: newProject },
+    })
     setIsDialogOpen(false)
     setEdits({ text: '', description: '' })
-  }, [projectList, textEdit, descriptionEdit, user.id])
+  }, [textEdit, descriptionEdit, user.id])
   const handleClickAddProject = useCallback((): void => setIsDialogOpen(true), [])
   const handleCloseDialog = useCallback((): void => setIsDialogOpen(false), [])
   return isLoading ? (
@@ -115,11 +95,13 @@ export const ProjectPage: React.FC<Props> = props => {
       <Pane marginBottom="15px">
         <Heading>Project</Heading>
       </Pane>
-      {Object.keys(projectList).map(projectId => (
-        <Link key={projectId} to={`${projectId}`}>
-          <ProjectBox>{projectList[projectId].title}</ProjectBox>
-        </Link>
-      ))}
+      {Object.values(documents)
+        .filter(doc => doc.type === 0)
+        .map(project => (
+          <Link key={project.id} to={`${project.id}`}>
+            <ProjectBox>{project.title}</ProjectBox>
+          </Link>
+        ))}
       <Pane marginTop="30px">
         <Button onClick={handleClickAddProject}>프로젝트 만들기</Button>
       </Pane>

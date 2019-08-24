@@ -17,7 +17,7 @@ const App: React.FC = () => {
         <Router>
           <SignInPage path="/" />
           <SignUpPage path="signup" />
-          <ProjectPage path="projects" />
+          <ProjectPage path="projects" documents={documents} />
           <ProjectDetailPage path="projects/:projectId" documents={documents} />
           <ListDetailPage path="projects/:projectId/lists/:listId" documents={documents} />
         </Router>

@@ -12,6 +12,7 @@ import { useQuickEdit } from '../hooks/useQuickEdit'
 import { AuthStatus } from '../types/AuthStatus'
 import { Document } from '../types/Document'
 import { Documents } from '../types/Documents'
+import Dropdown, { DropdownItem } from '../components/Dropdown/Dropdown'
 
 const ProjectDetailPagePane = styled(Pane)`
   .information-pane {
@@ -34,11 +35,15 @@ interface Props extends RouteComponentProps {
 
 export const ProjectDetailPage: React.FC<Props> = props => {
   const [user, status] = useAuth()
-  if (status === AuthStatus.unauthenticated) navigate('/')
+  const projectId = props.projectId!
+
+  useEffect(() => {
+    if (status === AuthStatus.unauthenticated) props.navigate!('/')
+    if (!props.documents[projectId]) props.navigate!('/projects')
+  }, [])
 
   const { dispatch } = useContext(DocumentContext)
   const [isLoading, setIsLoading] = useState(true)
-  const projectId = props.projectId!
   useEffect(() => {
     if (status === AuthStatus.authenticated) {
       const fetchDocument = async (): Promise<void> => {
@@ -101,6 +106,15 @@ export const ProjectDetailPage: React.FC<Props> = props => {
     })
   }, [textEditProject, descriptionEditProject])
 
+  const handleDeleteProject = (): void => {
+    dispatch({
+      type: 'DELETE_DOCUMENT',
+      payload: { id: projectId, parent: null },
+    })
+    setIsLoading(true)
+    navigate('/projects')
+  }
+
   const [
     textEdit,
     descriptionEdit,
@@ -150,7 +164,7 @@ export const ProjectDetailPage: React.FC<Props> = props => {
           <QuickEdit
             text={textEditProject}
             description={descriptionEditProject}
-            textPlaceholder="새 리스트"
+            textPlaceholder="프로젝트"
             descPlaceholder="설명(선택)"
             onTextChange={handleTextEditChangeProject}
             onDescChange={handleDescriptionEditChangeProject}
@@ -161,7 +175,10 @@ export const ProjectDetailPage: React.FC<Props> = props => {
           <div>
             <h2 className="title">{props.documents[projectId].title}</h2>
             <div className="description">{props.documents[projectId].description}</div>
-            <Button onClick={handleClickEditProject}>수정</Button>
+            <Dropdown>
+              <DropdownItem onClick={handleClickEditProject}>프로젝트 수정</DropdownItem>
+              <DropdownItem onClick={handleDeleteProject}>삭제</DropdownItem>
+            </Dropdown>
           </div>
         )}
       </div>

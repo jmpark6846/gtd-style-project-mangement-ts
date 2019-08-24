@@ -28,15 +28,22 @@ export const Button = styled.button<ButtonProps>`
   }
 `
 
+export const IconButton = styled(Button)`
+  padding: 0.5rem;
+  line-height: 1;
+  font-size: 1rem;
+`
+
 export const Checkbox = styled.input``
 
-interface PaneProps {
+export interface PaneProps {
   width?: string
   position?: string
   padding?: string
   marginTop?: string
   marginBottom?: string
   marginLeft?: string
+  right?: boolean
 }
 
 export const Pane = styled.div.attrs((props: PaneProps) => ({

@@ -62,25 +62,42 @@ const documentReducer = (state: Documents, action: Action): Documents => {
     }
     case 'DELETE_DOCUMENT': {
       const newState = { ...state }
-      const parentDoc = { ...state[payload.parent] }
+      const parentDoc = payload.parent && { ...state[payload.parent] }
+      let deletedDocIds: string[] = [payload.id]
+      for (let i = 0; i < deletedDocIds.length; i++) {
+        deletedDocIds = [...deletedDocIds, ...state[deletedDocIds[i]].subdocs]
+      }
+
       const deleteDocumentApi = async (): Promise<void> => {
-        await db
-          .collection('documents')
-          .doc(parentDoc.id)
-          .update({ subdocs: parentDoc.subdocs.filter(id => id !== payload.id) })
-        await db
-          .collection('documents')
-          .doc(payload.id)
-          .delete()
+        if (payload.parent) {
+          await db
+            .collection('documents')
+            .doc(parentDoc.id)
+            .update({ subdocs: parentDoc.subdocs.filter(id => id !== payload.id) })
+        }
+        // eslint-disable-next-line no-undef
+        Promise.all(
+          deletedDocIds.map(
+            async docId =>
+              await db
+                .collection('documents')
+                .doc(docId)
+                .delete()
+          )
+        )
       }
       deleteDocumentApi()
-      newState[parentDoc.id] = {
-        ...newState[parentDoc.id],
-        subdocs: newState[parentDoc.id].subdocs.filter(id => id !== payload.id),
+
+      if (payload.parent) {
+        newState[parentDoc.id] = {
+          ...newState[parentDoc.id],
+          subdocs: newState[parentDoc.id].subdocs.filter(id => id !== payload.id),
+        }
       }
-      delete newState[payload.id]
+      deletedDocIds.forEach(id => delete newState[id])
       return newState
     }
+
     case 'CHECK_TODO': {
       const changed = { done: !state[payload.id].done }
       putDocumentApi(state, payload.id, changed)
@@ -92,6 +109,7 @@ const documentReducer = (state: Documents, action: Action): Documents => {
         },
       }
     }
+
     default:
       return state
   }

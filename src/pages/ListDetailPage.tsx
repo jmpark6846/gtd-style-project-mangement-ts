@@ -1,4 +1,4 @@
-import { RouteComponentProps, navigate } from '@reach/router'
+import { RouteComponentProps } from '@reach/router'
 import React, { useCallback, useContext, useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { Button, Pane } from '../components/Common'
@@ -11,6 +11,7 @@ import { useQuickEdit } from '../hooks/useQuickEdit'
 import { AuthStatus } from '../types/AuthStatus'
 import { Document } from '../types/Document'
 import { Documents } from '../types/Documents'
+import Dropdown, { DropdownItem } from '../components/Dropdown/Dropdown'
 
 const ListDetailPagePane = styled(Pane)`
   h2.title {
@@ -30,12 +31,16 @@ interface Props extends RouteComponentProps {
 
 export const ListDetailPage: React.FC<Props> = props => {
   const [user, status] = useAuth()
-  if (status === AuthStatus.unauthenticated) navigate('/')
-
-  const { dispatch } = useContext(DocumentContext)
   const [isLoading, setIsLoading] = useState(true)
   const listId = props.listId!
   const projectId = props.projectId!
+
+  useEffect(() => {
+    if (status === AuthStatus.unauthenticated) props.navigate!('/')
+    if (!props.documents[listId]) props.navigate!('/projects/' + projectId)
+  }, [])
+
+  const { dispatch } = useContext(DocumentContext)
   useEffect(() => {
     if (status === AuthStatus.authenticated) {
       const fetchDocument = async (): Promise<void> => {
@@ -107,6 +112,15 @@ export const ListDetailPage: React.FC<Props> = props => {
     [props.documents]
   )
 
+  const handleDeleteList = (): void => {
+    dispatch({
+      type: 'DELETE_DOCUMENT',
+      payload: { id: listId, parent: projectId },
+    })
+    setIsLoading(true)
+    props.navigate!('/projects/' + projectId)
+  }
+
   return isLoading ? (
     <div>loading..</div>
   ) : (
@@ -126,7 +140,10 @@ export const ListDetailPage: React.FC<Props> = props => {
         <div>
           <h2 className="title">{props.documents[listId].title}</h2>
           <div className="description">{props.documents[listId].description}</div>
-          <Button onClick={handleClickEdit}>수정</Button>
+          <Dropdown>
+            <DropdownItem onClick={handleClickEdit}>리스트 수정</DropdownItem>
+            <DropdownItem onClick={handleDeleteList}>삭제</DropdownItem>
+          </Dropdown>
         </div>
       )}
       <div className="list">
