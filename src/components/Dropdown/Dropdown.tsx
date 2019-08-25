@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { FiMoreHorizontal } from 'react-icons/fi'
-import styled, { Interpolation } from 'styled-components'
-import { Pane, IconButton, Box } from '../Common'
+import styled from 'styled-components'
+import { Box, IconButton, Pane } from '../Common'
 
 interface DropdownMenuPaneProps {
   right: boolean
@@ -60,7 +60,7 @@ const Dropdown: React.FC<Props> = ({ select, onClose, alignRight, children }) =>
       setOpen(true)
       document.addEventListener('click', closeMenu)
     },
-    [setOpen]
+    [setOpen, closeMenu]
   )
   useEffect(() => {
     document.addEventListener('click', closeMenu)

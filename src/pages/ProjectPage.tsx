@@ -1,26 +1,28 @@
-import { Link, navigate, RouteComponentProps } from '@reach/router'
-import React, { useCallback, useEffect, useState, useContext } from 'react'
+import { Link, RouteComponentProps } from '@reach/router'
+import React, { useCallback, useContext, useEffect, useState } from 'react'
 import ContentEditable from 'react-contenteditable'
 import shortid from 'short-id'
 import styled from 'styled-components'
+
 import { Box, Button, Heading, Input, Pane } from '../components/Common'
 import Dialog from '../components/Dialog'
+import DocumentContext from '../contexts/DocumentContext'
 import { db } from '../db'
 import useAuth from '../hooks/useAuth'
 import { useQuickEdit } from '../hooks/useQuickEdit'
 import { AuthStatus } from '../types/AuthStatus'
 import { Document } from '../types/Document'
 import { Documents } from '../types/Documents'
-import DocumentContext from '../contexts/DocumentContext'
+import { Breadcumb } from '../components/Breadcumb'
 
 interface Props extends RouteComponentProps {
   documents: Documents
 }
 
-const ProjectBox = styled(Box)`
-  padding: 0.5em 1em;
+const ProjectBox = styled(Pane)`
+  padding: 1em 1.2em;
   border: 1px solid #d9d9d9;
-  border-radius: 1.5em;
+  border-radius: 5px;
 `
 
 export const ProjectPage: React.FC<Props> = ({ documents, navigate }) => {
@@ -28,7 +30,7 @@ export const ProjectPage: React.FC<Props> = ({ documents, navigate }) => {
 
   useEffect(() => {
     if (status === AuthStatus.unauthenticated) navigate!('/')
-  }, [])
+  }, [status, navigate])
 
   const [isLoading, setIsLoading] = useState(true)
   const { dispatch } = useContext(DocumentContext)
@@ -54,7 +56,7 @@ export const ProjectPage: React.FC<Props> = ({ documents, navigate }) => {
       }
       fetchProjects()
     }
-  }, [user, status])
+  }, [user, status, dispatch])
 
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [
@@ -73,11 +75,11 @@ export const ProjectPage: React.FC<Props> = ({ documents, navigate }) => {
       id: projectId,
       title: textEdit,
       description: descriptionEdit,
-      done: false,
-      subdocs: [],
-      projectId: null,
       type: 0,
       user: user.id,
+      projectId: null,
+      done: false,
+      subdocs: [],
     }
     dispatch({
       type: 'ADD_DOCUMENT',
@@ -85,13 +87,14 @@ export const ProjectPage: React.FC<Props> = ({ documents, navigate }) => {
     })
     setIsDialogOpen(false)
     setEdits({ text: '', description: '' })
-  }, [textEdit, descriptionEdit, user.id])
+  }, [textEdit, descriptionEdit, user.id, dispatch, setEdits])
   const handleClickAddProject = useCallback((): void => setIsDialogOpen(true), [])
   const handleCloseDialog = useCallback((): void => setIsDialogOpen(false), [])
   return isLoading ? (
     <div>loading...</div>
   ) : (
     <div>
+      <Breadcumb paths={[]} />
       <Pane marginBottom="15px">
         <Heading>Project</Heading>
       </Pane>
@@ -107,19 +110,27 @@ export const ProjectPage: React.FC<Props> = ({ documents, navigate }) => {
       </Pane>
       {isDialogOpen && (
         <Dialog onClose={handleCloseDialog}>
-          <Heading>프로젝트 추가하기</Heading>
-          <Input
-            placeholder="프로젝트 이름"
-            value={textEdit}
-            onChange={handleTextEditChange}
-            spellCheck={false}
-          />
-          <ContentEditable
-            placeholder="설명(선택)"
-            html={descriptionEdit}
-            onChange={handleDescriptionEditChange}
-            spellCheck={false}
-          />
+          <Pane marginBottom="15px">
+            <Heading>프로젝트 추가하기</Heading>
+          </Pane>
+          <Pane marginBottom="15px">
+            <Input
+              placeholder="프로젝트 이름"
+              value={textEdit}
+              onChange={handleTextEditChange}
+              spellCheck={false}
+              minimal
+            />
+          </Pane>
+          <Pane marginBottom="15px">
+            <ContentEditable
+              className="content-div minimal"
+              placeholder="설명(선택)"
+              html={descriptionEdit}
+              onChange={handleDescriptionEditChange}
+              spellCheck={false}
+            />
+          </Pane>
           <Button onClick={handleAddProject}>프로젝트 만들기</Button>
         </Dialog>
       )}

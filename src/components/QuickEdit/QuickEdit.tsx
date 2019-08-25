@@ -1,6 +1,13 @@
-import React from 'react'
-import { Box, Button, Input } from '../Common'
+import React, { useCallback } from 'react'
+import { Box, Button, Input, Pane } from '../Common'
 import ContentEditable, { ContentEditableEvent } from 'react-contenteditable'
+import styled from 'styled-components'
+
+const ControlPane = styled.div`
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-between;
+`
 
 interface Props {
   text: string
@@ -14,6 +21,8 @@ interface Props {
   onDelete?(): void
 }
 
+let compositionend = true
+
 const QuickEdit: React.FC<Props> = ({
   text,
   description,
@@ -25,18 +34,49 @@ const QuickEdit: React.FC<Props> = ({
   onCancel,
   onDelete,
 }) => {
+  const handleKeyDown = useCallback(
+    e => {
+      if (e.key === 'Enter') {
+        if (!compositionend || text === '') {
+          return
+        }
+
+        onSubmit()
+      } else if (e.key === 'Escape') {
+        onCancel()
+      }
+    },
+    [text, onSubmit, onCancel]
+  )
+
+  const handleComposition = (event: React.CompositionEvent<HTMLInputElement>): void => {
+    compositionend = event.type === 'compositionend'
+  }
+
   return (
     <Box>
-      <Input placeholder={textPlaceholder} onChange={onTextChange} value={text} />
+      <Input
+        placeholder={textPlaceholder}
+        onChange={onTextChange}
+        onCompositionStart={handleComposition}
+        onCompositionUpdate={handleComposition}
+        onCompositionEnd={handleComposition}
+        onKeyDown={handleKeyDown}
+        value={text}
+        marginBottom="10px"
+        minimal
+      />
       <ContentEditable
+        className="content-div minimal"
         html={description || ''}
         placeholder={descPlaceholder}
         onChange={onDescChange}
+        spellCheck={false}
       />
-      <div className="control-pane">
+      <ControlPane>
         <div>
-          <Button small onClick={onSubmit}>
-            추가하기
+          <Button small onClick={onSubmit} marginRight="7px">
+            저장하기
           </Button>
           <Button small onClick={onCancel}>
             취소
@@ -49,7 +89,7 @@ const QuickEdit: React.FC<Props> = ({
             </Button>
           </div>
         )}
-      </div>
+      </ControlPane>
     </Box>
   )
 }

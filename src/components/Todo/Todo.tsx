@@ -1,9 +1,9 @@
 import React, { useCallback } from 'react'
 import styled from 'styled-components'
-import { TodoContainerProps } from './TodoContainer'
-import QuickEdit from '../QuickEdit/QuickEdit'
 import { useQuickEdit } from '../../hooks/useQuickEdit'
 import { Document } from '../../types/Document'
+import QuickEdit from '../QuickEdit/QuickEdit'
+import { Pane } from '../Common'
 
 const TodoPane = styled.div`
   display: flex;
@@ -45,25 +45,29 @@ export const Todo: React.FC<TodoProps> = ({
   const handleSubmit = useCallback(() => {
     onChangeTodo(textEdit, descriptionEdit)
     setEdits({ isOpen: false })
-  }, [textEdit, descriptionEdit])
+  }, [textEdit, descriptionEdit, onChangeTodo, setEdits])
 
   const handleCancel = (): void => setEdits({ text: title, description, isOpen: false })
 
   return isEditOpen ? (
-    <QuickEdit
-      text={textEdit}
-      description={descriptionEdit}
-      textPlaceholder="새 리스트"
-      descPlaceholder="설명(선택)"
-      onTextChange={handleTextEditChange}
-      onDescChange={handleDescriptionEditChange}
-      onSubmit={handleSubmit}
-      onCancel={handleCancel}
-      onDelete={onDelete}
-    />
+    <Pane marginTop="8px" marginBottom="15px">
+      <QuickEdit
+        text={textEdit}
+        description={descriptionEdit}
+        textPlaceholder="새 할 일"
+        descPlaceholder="설명(선택)"
+        onTextChange={handleTextEditChange}
+        onDescChange={handleDescriptionEditChange}
+        onSubmit={handleSubmit}
+        onCancel={handleCancel}
+        onDelete={onDelete}
+      />
+    </Pane>
   ) : (
     <TodoPane onClick={(): void => setEdits({ isOpen: true })}>
-      <input type="checkbox" checked={done} onClick={onCheckboxClick} onChange={onCheck} />
+      <Pane marginRight="5px">
+        <input type="checkbox" checked={done} onClick={onCheckboxClick} onChange={onCheck} />
+      </Pane>
       {title}
     </TodoPane>
   )

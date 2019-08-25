@@ -1,20 +1,36 @@
 import { Link } from '@reach/router'
-import React from 'react'
+import React, { useCallback } from 'react'
 import styled from 'styled-components'
 import { useQuickEdit } from '../../hooks/useQuickEdit'
-import { Button } from '../Common'
+import { Button, Pane } from '../Common'
 import QuickEdit from '../QuickEdit/QuickEdit'
 import Todo from './TodoContainer'
 import { TodoListContainerProps } from './TodoListContainer'
 
 const TodoListPane = styled.div`
-  margin-bottom: 30px;
+  margin-top: 25px;
+
+  :hover {
+    button.todo-add {
+      /* transition: opacity 0.1s ease-in-out;
+      opacity: 1; */
+    }
+  }
+  .info-pane {
+    margin-bottom: 10px;
+  }
   h3.title {
     font-weight: 600;
     font-size: 1.3rem;
+    margin-bottom: 6px;
   }
   .description {
     color: grey;
+  }
+
+  button.todo-add {
+    /* transition: opacity 0.1s ease-in-out;
+    opacity: 0; */
   }
 `
 
@@ -33,6 +49,11 @@ export const TodoList: React.FC<TodoListProps> = ({ hideHeading, list, onAddTodo
     handleCancel,
   ] = useQuickEdit({ text: '', description: '' })
 
+  const handleSubmit = useCallback(() => {
+    onAddTodo(textEdit, descriptionEdit)
+    setEdits({ text: '', description: '', isOpen: true })
+  }, [textEdit, descriptionEdit])
+  const handleClick = useCallback((): void => setEdits({ isOpen: true }), [setEdits])
   return (
     <TodoListPane>
       {!hideHeading && (
@@ -43,23 +64,27 @@ export const TodoList: React.FC<TodoListProps> = ({ hideHeading, list, onAddTodo
           <div className="description">{list.description}</div>
         </div>
       )}
-      {todos.map(todo => (
-        <Todo key={todo.id} listId={list.id} todo={todo} />
-      ))}
+      <Pane marginBottom="10px">
+        {todos.map(todo => (
+          <Todo key={todo.id} listId={list.id} todo={todo} />
+        ))}
+      </Pane>
       {isEditOpen ? (
-        <QuickEdit
-          text={textEdit}
-          description={descriptionEdit}
-          textPlaceholder="새 리스트"
-          descPlaceholder="설명(선택)"
-          onTextChange={handleTextEditChange}
-          onDescChange={handleDescriptionEditChange}
-          onSubmit={(): void => onAddTodo(textEdit, descriptionEdit)}
-          onCancel={handleCancel}
-        />
+        <Pane marginBottom="8px" marginTop="10px">
+          <QuickEdit
+            text={textEdit}
+            description={descriptionEdit}
+            textPlaceholder="할 일"
+            descPlaceholder="설명(선택)"
+            onTextChange={handleTextEditChange}
+            onDescChange={handleDescriptionEditChange}
+            onSubmit={handleSubmit}
+            onCancel={handleCancel}
+          />
+        </Pane>
       ) : (
-        <Button small onClick={(): void => setEdits({ isOpen: true })}>
-          추가하기
+        <Button className="todo-add" small onClick={handleClick}>
+          할 일 추가
         </Button>
       )}
     </TodoListPane>

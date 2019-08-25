@@ -1,7 +1,8 @@
 import { RouteComponentProps } from '@reach/router'
 import React, { useCallback, useContext, useEffect, useState } from 'react'
 import styled from 'styled-components'
-import { Button, Pane } from '../components/Common'
+import { Pane } from '../components/Common'
+import Dropdown, { DropdownItem } from '../components/Dropdown/Dropdown'
 import QuickEdit from '../components/QuickEdit/QuickEdit'
 import TodoList from '../components/Todo/TodoListContainer'
 import DocumentContext from '../contexts/DocumentContext'
@@ -11,15 +12,33 @@ import { useQuickEdit } from '../hooks/useQuickEdit'
 import { AuthStatus } from '../types/AuthStatus'
 import { Document } from '../types/Document'
 import { Documents } from '../types/Documents'
-import Dropdown, { DropdownItem } from '../components/Dropdown/Dropdown'
+import ContentEditable from 'react-contenteditable'
+import { Breadcumb } from '../components/Breadcumb'
 
 const ListDetailPagePane = styled(Pane)`
+  .information-pane {
+    margin-bottom: 25px;
+    label {
+      padding: 0.4rem 0.5rem;
+      margin-left: 5px;
+      border-radius: 5px;
+      background-color: #a29bfe;
+      font-size: 0.8rem;
+      color: white;
+    }
+  }
+
   h2.title {
     font-weight: 700;
     font-size: 1.7rem;
   }
   .description {
     color: grey;
+  }
+  .heading-pane {
+    display: flex;
+    align-items: center;
+    margin-bottom: 6px;
   }
 `
 
@@ -37,20 +56,27 @@ export const ListDetailPage: React.FC<Props> = props => {
 
   useEffect(() => {
     if (status === AuthStatus.unauthenticated) props.navigate!('/')
-    if (!props.documents[listId]) props.navigate!('/projects/' + projectId)
-  }, [])
+    if (!isLoading && !props.documents[listId]) props.navigate!('/projects/' + projectId)
+  }, [status, props.documents, props.navigate, listId, projectId])
 
   const { dispatch } = useContext(DocumentContext)
   useEffect(() => {
     if (status === AuthStatus.authenticated) {
       const fetchDocument = async (): Promise<void> => {
         try {
-          const document = await db
+          const list = await db
             .collection('documents')
             .where('user', '==', user.id)
             .where('id', '==', listId)
             .get()
-            .then(snapshot => (snapshot.empty ? {} : snapshot.docs[0].data()))
+            .then(snapshot => (snapshot.empty ? null : snapshot.docs[0].data()))
+
+          const project = await db
+            .collection('documents')
+            .where('user', '==', user.id)
+            .where('id', '==', projectId)
+            .get()
+            .then(snapshot => (snapshot.empty ? null : snapshot.docs[0].data()))
 
           const subdocsSnapshot = await db
             .collection('documents')
@@ -65,7 +91,8 @@ export const ListDetailPage: React.FC<Props> = props => {
             docs[_doc.id] = _doc
           })
 
-          docs[listId] = document as Document
+          docs[projectId] = project as Document
+          docs[listId] = list as Document
           dispatch({ type: 'UPDATE_DOCUMENTS', payload: docs })
           setIsLoading(false)
         } catch (error) {
@@ -74,7 +101,7 @@ export const ListDetailPage: React.FC<Props> = props => {
       }
       fetchDocument()
     }
-  }, [status])
+  }, [listId, dispatch, projectId, user.id, status])
 
   const [
     textEdit,
@@ -94,7 +121,7 @@ export const ListDetailPage: React.FC<Props> = props => {
     setEdits({
       isOpen: false,
     })
-  }, [textEdit, descriptionEdit])
+  }, [textEdit, descriptionEdit, dispatch, listId, setEdits])
 
   const handleClickEdit = (): void =>
     setEdits({
@@ -120,32 +147,49 @@ export const ListDetailPage: React.FC<Props> = props => {
     setIsLoading(true)
     props.navigate!('/projects/' + projectId)
   }
-
-  return isLoading ? (
+  const emptyMemoCallback = useCallback(() => {}, [])
+  return isLoading || props.documents[listId] == null ? (
     <div>loading..</div>
   ) : (
     <ListDetailPagePane>
-      {isEditOpen ? (
-        <QuickEdit
-          text={textEdit}
-          description={descriptionEdit}
-          textPlaceholder="새 리스트"
-          descPlaceholder="설명(선택)"
-          onTextChange={handleTextEditChange}
-          onDescChange={handleDescriptionEditChange}
-          onSubmit={handleSubmit}
-          onCancel={handleCancel}
-        />
-      ) : (
-        <div>
-          <h2 className="title">{props.documents[listId].title}</h2>
-          <div className="description">{props.documents[listId].description}</div>
-          <Dropdown>
-            <DropdownItem onClick={handleClickEdit}>리스트 수정</DropdownItem>
-            <DropdownItem onClick={handleDeleteList}>삭제</DropdownItem>
-          </Dropdown>
-        </div>
-      )}
+      <Breadcumb
+        paths={[
+          { id: projectId, title: props.documents[projectId].title },
+          { id: listId, title: props.documents[listId].title },
+        ]}
+      />
+
+      <div className="information-pane">
+        {isEditOpen ? (
+          <QuickEdit
+            text={textEdit}
+            description={descriptionEdit}
+            textPlaceholder="새 리스트"
+            descPlaceholder="설명(선택)"
+            onTextChange={handleTextEditChange}
+            onDescChange={handleDescriptionEditChange}
+            onSubmit={handleSubmit}
+            onCancel={handleCancel}
+          />
+        ) : (
+          <div>
+            <div className="heading-pane">
+              <h2 className="title">{props.documents[listId].title}</h2>
+              <label>리스트</label>
+              <Dropdown>
+                <DropdownItem onClick={handleClickEdit}>리스트 수정</DropdownItem>
+                <DropdownItem onClick={handleDeleteList}>삭제</DropdownItem>
+              </Dropdown>
+            </div>
+            <ContentEditable
+              className="description"
+              onChange={emptyMemoCallback}
+              html={props.documents[listId].description || ''}
+              disabled={true}
+            />
+          </div>
+        )}
+      </div>
       <div className="list">
         <TodoList
           key={listId}

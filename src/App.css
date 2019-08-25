@@ -13,3 +13,40 @@ a {
 a:hover {
   color: inherit;
 }
+
+.content-div {
+  line-height: 1.2;
+  border: 1px solid #bfbfbf;
+  border-radius: 5px;
+  padding: 10px;
+  background-color: #fff;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  -webkit-transition: box-shadow 0.15s ease-in-out;
+  -moz-transition: box-shadow 0.15s ease-in-out;
+  -ms-transition: box-shadow 0.15s ease-in-out;
+  transition: box-shadow 0.15s ease-in-out;
+  text-decoration: none;
+  white-space: normal;
+  vertical-align: middle;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  min-height: 40px;
+}
+
+.content-div.minimal {
+  padding: 0;
+  border: none;
+}
+
+.content-div.minimal:focus {
+  outline: inherit;
+  border-color: inherit;
+  box-shadow: none;
+}
+.content-div:focus {
+  outline: none;
+  border-color: #a4d2ff;
+  box-shadow: 0 0 6px rgba(27, 106, 201, 0.5);
+}

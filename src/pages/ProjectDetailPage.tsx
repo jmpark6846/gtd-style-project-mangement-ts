@@ -2,7 +2,8 @@ import { navigate, RouteComponentProps } from '@reach/router'
 import React, { useCallback, useContext, useEffect, useState } from 'react'
 import shortid from 'short-id'
 import styled from 'styled-components'
-import { Button, Pane } from '../components/Common'
+import { Button, Pane, Input } from '../components/Common'
+import Dropdown, { DropdownItem } from '../components/Dropdown/Dropdown'
 import QuickEdit from '../components/QuickEdit/QuickEdit'
 import TodoList from '../components/Todo/TodoListContainer'
 import DocumentContext from '../contexts/DocumentContext'
@@ -12,11 +13,13 @@ import { useQuickEdit } from '../hooks/useQuickEdit'
 import { AuthStatus } from '../types/AuthStatus'
 import { Document } from '../types/Document'
 import { Documents } from '../types/Documents'
-import Dropdown, { DropdownItem } from '../components/Dropdown/Dropdown'
+import ContentEditable from 'react-contenteditable'
+import { Breadcumb } from '../components/Breadcumb'
+import {} from 'react-icons'
 
 const ProjectDetailPagePane = styled(Pane)`
   .information-pane {
-    margin-bottom: 30px;
+    margin-bottom: 20px;
 
     h2.title {
       font-weight: 700;
@@ -25,6 +28,19 @@ const ProjectDetailPagePane = styled(Pane)`
     .description {
       color: grey;
     }
+    label {
+      padding: 0.4rem 0.5rem;
+      margin-left: 5px;
+      border-radius: 5px;
+      background-color: #74b9ff;
+      font-size: 0.8rem;
+      color: white;
+    }
+  }
+  .heading-pane {
+    display: flex;
+    align-items: center;
+    margin-bottom: 6px;
   }
 `
 
@@ -35,15 +51,14 @@ interface Props extends RouteComponentProps {
 
 export const ProjectDetailPage: React.FC<Props> = props => {
   const [user, status] = useAuth()
+  const [isLoading, setIsLoading] = useState(true)
   const projectId = props.projectId!
-
   useEffect(() => {
     if (status === AuthStatus.unauthenticated) props.navigate!('/')
-    if (!props.documents[projectId]) props.navigate!('/projects')
-  }, [])
+    if (!isLoading && props.documents[projectId] == null) props.navigate!('/projects')
+  }, [isLoading, props.documents, projectId, props.navigate, status])
 
   const { dispatch } = useContext(DocumentContext)
-  const [isLoading, setIsLoading] = useState(true)
   useEffect(() => {
     if (status === AuthStatus.authenticated) {
       const fetchDocument = async (): Promise<void> => {
@@ -53,7 +68,7 @@ export const ProjectDetailPage: React.FC<Props> = props => {
             .where('user', '==', user.id)
             .where('id', '==', projectId)
             .get()
-            .then(snapshot => (snapshot.empty ? {} : snapshot.docs[0].data()))
+            .then(snapshot => (snapshot.empty ? null : snapshot.docs[0].data()))
 
           const subdocsSnapshot = await db
             .collection('documents')
@@ -77,7 +92,7 @@ export const ProjectDetailPage: React.FC<Props> = props => {
       }
       fetchDocument()
     }
-  }, [status])
+  }, [status, dispatch, projectId, user.id])
 
   const [
     textEditProject,
@@ -104,7 +119,7 @@ export const ProjectDetailPage: React.FC<Props> = props => {
     setEditsProject({
       isOpen: false,
     })
-  }, [textEditProject, descriptionEditProject])
+  }, [textEditProject, descriptionEditProject, dispatch, projectId, setEditsProject])
 
   const handleDeleteProject = (): void => {
     dispatch({
@@ -141,10 +156,10 @@ export const ProjectDetailPage: React.FC<Props> = props => {
       type: 'ADD_DOCUMENT',
       payload: { parent: projectId, id: listId, document: newList },
     })
-    setEdits({ text: '', description: '' })
-  }, [user.id, projectId, textEdit, descriptionEdit])
+    setEdits({ text: '', description: '', isOpen: false })
+  }, [user.id, projectId, textEdit, descriptionEdit, dispatch, setEdits])
 
-  const handleAddClick = useCallback((): void => setEdits({ isOpen: true }), [])
+  const handleAddClick = useCallback((): void => setEdits({ isOpen: true }), [setEdits])
 
   const getTodosByListId = useCallback(
     (listId: string) => {
@@ -155,37 +170,52 @@ export const ProjectDetailPage: React.FC<Props> = props => {
     [props.documents]
   )
 
-  return isLoading ? (
+  const emptyMemoCallback = useCallback(() => {}, [])
+
+  return isLoading || props.documents[projectId] == null ? (
     <div>loading..</div>
   ) : (
     <ProjectDetailPagePane>
+      <Breadcumb paths={[{ id: projectId, title: props.documents[projectId].title }]} />
       <div className="information-pane">
         {isEditOpenProject ? (
-          <QuickEdit
-            text={textEditProject}
-            description={descriptionEditProject}
-            textPlaceholder="프로젝트"
-            descPlaceholder="설명(선택)"
-            onTextChange={handleTextEditChangeProject}
-            onDescChange={handleDescriptionEditChangeProject}
-            onSubmit={handleSubmitProject}
-            onCancel={handleCancelProject}
-          />
+          <Pane marginBottom="15px">
+            <QuickEdit
+              text={textEditProject}
+              description={descriptionEditProject}
+              textPlaceholder="프로젝트"
+              descPlaceholder="설명(선택)"
+              onTextChange={handleTextEditChangeProject}
+              onDescChange={handleDescriptionEditChangeProject}
+              onSubmit={handleSubmitProject}
+              onCancel={handleCancelProject}
+            />
+          </Pane>
         ) : (
-          <div>
-            <h2 className="title">{props.documents[projectId].title}</h2>
-            <div className="description">{props.documents[projectId].description}</div>
-            <Dropdown>
-              <DropdownItem onClick={handleClickEditProject}>프로젝트 수정</DropdownItem>
-              <DropdownItem onClick={handleDeleteProject}>삭제</DropdownItem>
-            </Dropdown>
-          </div>
+          <Pane marginBottom="20px">
+            <div className="heading-pane">
+              <h2 className="title">{props.documents[projectId].title}</h2>
+              <label>프로젝트</label>
+              <Dropdown>
+                <DropdownItem onClick={handleClickEditProject}>프로젝트 수정</DropdownItem>
+                <DropdownItem onClick={handleDeleteProject}>삭제</DropdownItem>
+              </Dropdown>
+            </div>
+            <ContentEditable
+              className="description"
+              onChange={emptyMemoCallback}
+              html={props.documents[projectId].description || ''}
+              disabled={true}
+            />
+          </Pane>
         )}
       </div>
       <div className="list">
         {props.documents[projectId].subdocs.map(listId => (
           <TodoList key={listId} list={props.documents[listId]} todos={getTodosByListId(listId)} />
         ))}
+      </div>
+      <Pane marginTop="30px">
         {isEditOpen ? (
           <QuickEdit
             text={textEdit}
@@ -198,9 +228,9 @@ export const ProjectDetailPage: React.FC<Props> = props => {
             onCancel={handleCancel}
           />
         ) : (
-          <Button onClick={handleAddClick}>리스트 추가하기</Button>
+          <Button onClick={handleAddClick}>리스트 추가</Button>
         )}
-      </div>
+      </Pane>
     </ProjectDetailPagePane>
   )
 }

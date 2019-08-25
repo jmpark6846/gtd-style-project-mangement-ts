@@ -3,13 +3,13 @@ import 'firebase/firestore'
 import 'firebase/auth'
 
 const firebaseConfig = {
-  apiKey: 'AIzaSyCchrUcVYtzAoYNtes9ebKiomCEGyzIN5U',
-  authDomain: 'projects-ts.firebaseapp.com',
-  databaseURL: 'https://projects-ts.firebaseio.com',
-  projectId: 'projects-ts',
+  apiKey: 'AIzaSyCSHv1PNlI58TMdMcnrl6evwDSW2QfjXYY',
+  authDomain: 'projects-ts-6c119.firebaseapp.com',
+  databaseURL: 'https://projects-ts-6c119.firebaseio.com',
+  projectId: 'projects-ts-6c119',
   storageBucket: '',
-  messagingSenderId: '57368039787',
-  appId: '1:57368039787:web:400b1ffc8f5eb0d4',
+  messagingSenderId: '674323375320',
+  appId: '1:674323375320:web:c14aac330ce6fc7b',
 }
 
 // Initialize Firebase

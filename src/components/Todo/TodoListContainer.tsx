@@ -1,8 +1,8 @@
 import React, { useCallback, useContext } from 'react'
-import { TodoList } from './TodoList'
-import { Document } from '../../types/Document'
 import shortid from 'short-id'
 import DocumentContext from '../../contexts/DocumentContext'
+import { Document } from '../../types/Document'
+import { TodoList } from './TodoList'
 
 export interface TodoListContainerProps {
   list: Document
@@ -30,7 +30,7 @@ const TodoListContainer: React.FC<TodoListContainerProps> = props => {
         payload: { parent: props.list.id, id: todoId, document: newTodo },
       })
     },
-    [props.list.user, props.list.projectId]
+    [props.list.user, props.list.projectId, dispatch, props.list.id]
   )
 
   return <TodoList {...props} onAddTodo={handleAddTodo} />

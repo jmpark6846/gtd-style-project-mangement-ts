@@ -31,23 +31,23 @@ const documentReducer = (state: Documents, action: Action): Documents => {
             .doc(payload.id)
             .set(payload.document)
 
-          await db
-            .collection('documents')
-            .doc(payload.parent)
-            .update({ subdocs: [...state[payload.parent].subdocs, payload.id] })
+          if (payload.parent !== null) {
+            await db
+              .collection('documents')
+              .doc(payload.parent)
+              .update({ subdocs: state[payload.parent].subdocs })
+          }
         } catch (error) {
           console.error('error adding document: ' + error)
         }
       }
       addDocumentApi()
-      return {
-        ...state,
-        [payload.parent]: {
-          ...state[payload.parent],
-          subdocs: [...state[payload.parent].subdocs, payload.id],
-        },
-        [payload.id]: payload.document,
+      const newState = { ...state }
+      newState[payload.id] = payload.document
+      if (payload.parent !== null) {
+        newState[payload.parent].subdocs = [...newState[payload.parent].subdocs, payload.id]
       }
+      return newState
     }
     case 'CHANGE_DOCUMENT': {
       const { id, ...changed } = payload

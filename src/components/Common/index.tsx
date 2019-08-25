@@ -3,6 +3,7 @@ import styled from 'styled-components'
 interface ButtonProps {
   small?: boolean
   minimal?: boolean
+  marginRight?: string
 }
 
 export const Button = styled.button<ButtonProps>`
@@ -22,6 +23,7 @@ export const Button = styled.button<ButtonProps>`
   padding-top: ${props => props.small && '0.425em;'};
   padding-bottom: ${props => props.small && '0.425em;'};
   border: ${props => props.minimal && 'none'};
+  margin-right: ${props => props.marginRight};
 
   :hover {
     background-color: #f7f7f7;
@@ -32,6 +34,7 @@ export const IconButton = styled(Button)`
   padding: 0.5rem;
   line-height: 1;
   font-size: 1rem;
+  border: none;
 `
 
 export const Checkbox = styled.input``
@@ -43,17 +46,11 @@ export interface PaneProps {
   marginTop?: string
   marginBottom?: string
   marginLeft?: string
+  marginRight?: string
   right?: boolean
 }
 
-export const Pane = styled.div.attrs((props: PaneProps) => ({
-  width: props.width,
-  position: props.position,
-  padding: props.padding,
-  marginTop: props.marginTop,
-  marginBottom: props.marginBottom,
-  marginLeft: props.marginLeft,
-}))`
+export const Pane = styled.div<PaneProps>`
   background-color: white;
   width: ${props => props.width};
   position: ${props => props.position};
@@ -61,6 +58,7 @@ export const Pane = styled.div.attrs((props: PaneProps) => ({
   margin-top: ${props => props.marginTop};
   margin-bottom: ${props => props.marginBottom};
   margin-left: ${props => props.marginLeft};
+  margin-right: ${props => props.marginRight};
 `
 
 export const Box = styled(Pane)`
@@ -79,11 +77,9 @@ export const Input = styled.input.attrs((props: InputProps) => ({
   minimal: props.minimal,
 }))`
   width: 100%;
-  border: ${props => (props.minimal ? 'none' : '1px solid #d9d9d9')};
-
+  border: ${props => (props.minimal ? 'none' : '1px solid #bfbfbf')};
   border-radius: 5px;
-  border: 1px solid #bfbfbf;
-  padding: 10px;
+  padding: ${props => (props.minimal ? '0' : '10px')}
   background-color: #fff;
   -webkit-appearance: none;
   -moz-appearance: none;
@@ -102,11 +98,21 @@ export const Input = styled.input.attrs((props: InputProps) => ({
   :focus {
     outline: none;
     border-color: #a4d2ff;
-    box-shadow: 0 0 6px rgba(27, 106, 201, 0.5);
-  }
+    box-shadow: ${props => (props.minimal ? 'none' : '0 0 6px rgba(27, 106, 201, 0.5)')};
+  } 
+
 `
 
 export const Heading = styled.h2`
   font-weight: 700;
   font-size: 1.7rem;
+`
+
+export const Label = styled.label`
+  padding: 0.4rem 0.5rem;
+  margin-left: 5px;
+  border-radius: 5px;
+  background-color: palevioletred;
+  font-size: 0.8rem;
+  color: white;
 `
