@@ -1,6 +1,7 @@
 import { RouteComponentProps, navigate } from '@reach/router'
-import React, { useCallback } from 'react'
+import React, { useCallback, useState } from 'react'
 import styled from 'styled-components'
+import shortid from 'short-id'
 import { Button, Input } from '../components/Common'
 import { db, firebaseAuth } from '../db'
 import { useInputState } from '../hooks/useInputState'
@@ -28,6 +29,7 @@ export const SignUpPage: React.FC<Props> = () => {
   const [email, _setEmail, handleEmailChange] = useInputState('')
   const [username, _setUsername, handleUsernameChange] = useInputState('')
   const [password, _setPassword, handlePasswordChange] = useInputState('')
+  const [message, setMessage] = useState('')
   const handleSubmit = useCallback(async () => {
     try {
       const res = await firebaseAuth.createUserWithEmailAndPassword(email, password)
@@ -40,9 +42,11 @@ export const SignUpPage: React.FC<Props> = () => {
             email,
             username,
           })
+
         navigate('projects')
       }
     } catch (error) {
+      setMessage(error.message)
       console.error('error signing up: ' + error)
     }
   }, [email, password, username])
@@ -64,7 +68,7 @@ export const SignUpPage: React.FC<Props> = () => {
             placeholder="password"
           />
         </div>
-        <div className="message"></div>
+        <div className="message">{message}</div>
       </div>
       <div className="control-pane">
         <Button onClick={useCallback(() => navigate('/'), [])}>취소</Button>

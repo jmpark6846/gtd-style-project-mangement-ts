@@ -14,7 +14,6 @@ import { AuthStatus } from '../types/AuthStatus'
 import { Document } from '../types/Document'
 import { Documents } from '../types/Documents'
 import { Breadcumb } from '../components/Breadcumb'
-import logo from '../assets/apple-icon-180x180.png'
 
 interface Props extends RouteComponentProps {
   documents: Documents
@@ -97,10 +96,7 @@ export const ProjectPage: React.FC<Props> = ({ documents, navigate }) => {
     <div>
       <Breadcumb paths={[]} />
       <Pane marginBottom="15px">
-        <Heading>
-          <img src={logo} alt="Logo" style={{ width: '2rem', marginRight: '5px' }} />
-          gtd-style-project-management
-        </Heading>
+        <Heading>프로젝트</Heading>
       </Pane>
       {Object.values(documents)
         .filter(doc => doc.type === 0)

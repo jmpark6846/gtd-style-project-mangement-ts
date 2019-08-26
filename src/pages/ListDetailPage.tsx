@@ -34,6 +34,7 @@ const ListDetailPagePane = styled(Pane)`
   }
   .description {
     color: grey;
+    line-height: 1.3;
   }
   .heading-pane {
     display: flex;

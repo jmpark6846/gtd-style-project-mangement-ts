@@ -44,6 +44,7 @@ export const TodoList: React.FC<TodoListProps> = ({
   onAddTodo,
   todos,
   hideDescription,
+  hideDone,
 }) => {
   const [
     textEdit,
@@ -60,6 +61,10 @@ export const TodoList: React.FC<TodoListProps> = ({
     setEdits({ text: '', description: '', isOpen: true })
   }, [textEdit, descriptionEdit])
   const handleClick = useCallback((): void => setEdits({ isOpen: true }), [setEdits])
+  const getFilteredTodos = useCallback(
+    () => (hideDone ? todos.filter(todo => !todo.done) : todos),
+    [todos, hideDone]
+  )
   return (
     <TodoListPane>
       {!hideHeading && (
@@ -71,7 +76,7 @@ export const TodoList: React.FC<TodoListProps> = ({
         </div>
       )}
       <Pane marginBottom="10px">
-        {todos.map(todo => (
+        {getFilteredTodos().map(todo => (
           <Todo key={todo.id} listId={list.id} todo={todo} />
         ))}
       </Pane>

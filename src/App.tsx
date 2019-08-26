@@ -14,6 +14,7 @@ import { Header } from './components/Common/Header'
 const Body = styled.section`
   /* position: absolute; */
   width: 900px;
+  max-width: 100%;
   margin: 75px auto 0px auto;
   padding: 0px 30px;
   background-color: white;

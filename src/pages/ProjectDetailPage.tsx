@@ -27,6 +27,7 @@ const ProjectDetailPagePane = styled(Pane)`
     }
     .description {
       color: grey;
+      line-height: 1.3;
     }
     label {
       padding: 0.4rem 0.5rem;
@@ -215,6 +216,7 @@ export const ProjectDetailPage: React.FC<Props> = props => {
           <TodoList
             key={listId}
             hideDescription={true}
+            hideDone={true}
             list={props.documents[listId]}
             todos={getTodosByListId(listId)}
           />

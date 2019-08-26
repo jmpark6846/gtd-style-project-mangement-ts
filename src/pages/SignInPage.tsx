@@ -4,11 +4,12 @@ import styled from 'styled-components'
 import { Input, Button } from '../components/Common'
 import { useInputState } from '../hooks/useInputState'
 import { firebaseAuth } from '../db'
+import logo from '../assets/apple-icon-180x180.png'
 
 const SignInPagePane = styled.div`
   h2.title {
     font-weight: 700;
-    font-size: 1.7rem;
+    font-size: 2rem;
   }
   .signin-form {
     margin-top: 20px;
@@ -40,7 +41,10 @@ export const SignInPage: React.FC<Props> = () => {
 
   return (
     <SignInPagePane>
-      <h2 className="title">Sign In</h2>
+      <h2 className="title">
+        <img src={logo} alt="Logo" style={{ width: '2rem', marginRight: '5px' }} />
+        gtd-style-project-management
+      </h2>
       <div className="signin-form">
         <div className="field">
           <Input value={email} onChange={handleEmailChange} placeholder="email" />
