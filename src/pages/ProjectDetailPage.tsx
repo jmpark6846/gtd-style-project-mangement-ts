@@ -212,7 +212,12 @@ export const ProjectDetailPage: React.FC<Props> = props => {
       </div>
       <div className="list">
         {props.documents[projectId].subdocs.map(listId => (
-          <TodoList key={listId} list={props.documents[listId]} todos={getTodosByListId(listId)} />
+          <TodoList
+            key={listId}
+            hideDescription={true}
+            list={props.documents[listId]}
+            todos={getTodosByListId(listId)}
+          />
         ))}
       </div>
       <Pane marginTop="30px">

@@ -8,7 +8,7 @@ const BreadcumbPane = styled.div`
   font-size: 0.9rem;
   display: flex;
   align-items: center;
-  margin-bottom: 3px;
+  margin-bottom: 15px;
 
   a {
     color: grey;

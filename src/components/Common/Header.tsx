@@ -5,6 +5,7 @@ import useAuth from '../../hooks/useAuth'
 import { firebaseAuth } from '../../db'
 import { RouteComponentProps, navigate, Link } from '@reach/router'
 import { User } from '../../types/User'
+import logo from '../../assets/apple-icon-180x180.png'
 
 const Nav = styled.nav`
   position: fixed;
@@ -46,7 +47,10 @@ export const Header: React.FC<Props> = () => {
   return (
     <Nav>
       <Logo>
-        <Link to={`/projects`}>projects</Link>
+        <Link to={`/projects`}>
+          <img src={logo} alt="Logo" style={{ width: '1.3rem', marginRight: '5px' }} />
+          gtd-style-project-management
+        </Link>
       </Logo>
 
       <Dropdown select={user.username}>

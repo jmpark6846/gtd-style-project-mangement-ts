@@ -38,7 +38,13 @@ interface TodoListProps extends TodoListContainerProps {
   onAddTodo(text: string, description: string): void
 }
 
-export const TodoList: React.FC<TodoListProps> = ({ hideHeading, list, onAddTodo, todos }) => {
+export const TodoList: React.FC<TodoListProps> = ({
+  hideHeading,
+  list,
+  onAddTodo,
+  todos,
+  hideDescription,
+}) => {
   const [
     textEdit,
     descriptionEdit,
@@ -61,7 +67,7 @@ export const TodoList: React.FC<TodoListProps> = ({ hideHeading, list, onAddTodo
           <h3 className="title">
             <Link to={`lists/${list.id}`}>{list.title}</Link>
           </h3>
-          <div className="description">{list.description}</div>
+          {!hideDescription && <div className="description">{list.description}</div>}
         </div>
       )}
       <Pane marginBottom="10px">

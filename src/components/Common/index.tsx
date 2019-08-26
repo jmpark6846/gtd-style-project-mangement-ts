@@ -105,7 +105,7 @@ export const Input = styled.input.attrs((props: InputProps) => ({
 
 export const Heading = styled.h2`
   font-weight: 700;
-  font-size: 1.7rem;
+  font-size: 2rem;
 `
 
 export const Label = styled.label`

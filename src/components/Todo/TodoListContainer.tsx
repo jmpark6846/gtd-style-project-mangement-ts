@@ -8,6 +8,7 @@ export interface TodoListContainerProps {
   list: Document
   todos: Document[]
   hideHeading?: boolean
+  hideDescription?: boolean
 }
 
 const TodoListContainer: React.FC<TodoListContainerProps> = props => {
