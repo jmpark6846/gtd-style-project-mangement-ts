@@ -3,7 +3,12 @@
 타입스크립트와 리엑트로 만든 Getting Thins Done 스타일의 개인 프로젝트 관리 도구  
 Typescript, React, React Hooks, styled-components, react-testing-library와 Firebase Firestore database, Authentication 서비스 사용
 
+### 프로젝트
+
 ![img](./readme/screen2.png)
+
+### 리스트 상세 보기
+
 ![img](./readme/screen1.png)
 
 ### 개발 환경
